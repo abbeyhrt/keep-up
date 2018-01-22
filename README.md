@@ -1,4 +1,4 @@
-# `spec-cli`
+# `keep-up` [![Build Status](https://travis-ci.org/joshblack/keep-up.svg?branch=master)](https://travis-ci.org/joshblack/keep-up)
 
 This project was bootstrapped using `spec-cli`.
 

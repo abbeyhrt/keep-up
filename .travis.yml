@@ -17,3 +17,17 @@ before_install:
 
 script:
   - yarn ci-check
+
+before_deploy:
+  - yarn build
+
+deploy:
+  skip_cleanup: true
+  provider: cloudfoundry
+  username: apikey
+  password: $CLOUD_API_KEY
+  api: https://api.ng.bluemix.net
+  organization: joshblack@us.ibm.com
+  space: dev
+  on:
+    branch: master
