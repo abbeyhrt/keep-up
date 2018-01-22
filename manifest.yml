@@ -3,7 +3,7 @@ applications:
   - name: keep-up-dev
     host: keep-up-dev
     memory: 128M
-    disk_quota: 512M
+    disk_quota: 1024M
     instances: 1
     buildpack: sdk-for-nodejs
     env:
