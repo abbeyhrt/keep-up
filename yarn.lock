@@ -62,9 +62,9 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@spec/babel-preset-spec@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@spec/babel-preset-spec/-/babel-preset-spec-2.1.1.tgz#19f07f8477371b4249700ad0f85bbea5e64bcfab"
+"@spec/babel-preset-spec@2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@spec/babel-preset-spec/-/babel-preset-spec-2.1.2.tgz#f5d34c7bc28812fa09fcc3badd56ef8271cc377e"
   dependencies:
     babel-plugin-dynamic-import-node "^1.2.0"
     babel-preset-env "^1.6.1"
@@ -72,21 +72,21 @@
     babel-preset-react "^6.24.1"
     babel-preset-stage-1 "^6.24.1"
 
-"@spec/cli@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@spec/cli/-/cli-2.1.1.tgz#ddfa344ea6d048218808a55c044e6c782f8ebb64"
+"@spec/cli@2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@spec/cli/-/cli-2.1.2.tgz#807bc64e9cf3aed2024365d19c035ea6eb1e4448"
   dependencies:
-    "@spec/templates" "2.1.1"
+    "@spec/templates" "2.1.2"
     chalk "^2.3.0"
     commander "2.11.0"
     cross-spawn "^5.1.0"
     fs-extra "^5.0.0"
 
-"@spec/config@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@spec/config/-/config-2.1.1.tgz#b67fc9c510124c1b920ada611ed939de8bd917d7"
+"@spec/config@2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@spec/config/-/config-2.1.2.tgz#a7bd6ff2087299d07085de509a49a5520b71cffd"
   dependencies:
-    "@spec/babel-preset-spec" "2.1.1"
+    "@spec/babel-preset-spec" "2.1.2"
     autoprefixer "^7.2.5"
     babel-jest "^22.0.6"
     babel-loader "^7.1.2"
@@ -119,11 +119,11 @@
     whatwg-fetch "^2.0.3"
     yaml-loader "^0.5.0"
 
-"@spec/server@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@spec/server/-/server-2.1.1.tgz#7936e46e7451c1098eec345cbb6e77116a8a1467"
+"@spec/server@2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@spec/server/-/server-2.1.2.tgz#7466d1f8d154332a25b447ee431ddc9941f1b44b"
   dependencies:
-    "@spec/config" "2.1.1"
+    "@spec/config" "2.1.2"
     body-parser "1.17.2"
     compression "1.7.0"
     config "1.26.2"
@@ -140,11 +140,11 @@
     webpack-hot-middleware "2.19.1"
     winston "2.3.1"
 
-"@spec/template-product@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@spec/template-product/-/template-product-2.1.1.tgz#282a0eca52763c52b0f8879cd92b8f771ceca9ff"
+"@spec/template-product@2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@spec/template-product/-/template-product-2.1.2.tgz#1de94a75e8c757a5a93553e4fb458ce04073035a"
   dependencies:
-    "@spec/config" "2.1.1"
+    "@spec/config" "2.1.2"
     babel-jest "^22.1.0"
     chalk "^2.3.0"
     fs-extra "^5.0.0"
@@ -153,11 +153,11 @@
     nodemon "^1.14.11"
     webpack "^3.10.0"
 
-"@spec/templates@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@spec/templates/-/templates-2.1.1.tgz#ab1a360e476f52da2416a8da73f5e62bc1c6746e"
+"@spec/templates@2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@spec/templates/-/templates-2.1.2.tgz#704bcb0675674812ee32602c773a1b11b36d8c03"
   dependencies:
-    "@spec/template-product" "2.1.1"
+    "@spec/template-product" "2.1.2"
 
 "@types/node@*":
   version "9.3.0"

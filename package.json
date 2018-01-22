@@ -43,8 +43,8 @@
     "trailingComma": "es5"
   },
   "dependencies": {
-    "@spec/cli": "2.1.1",
-    "@spec/server": "2.1.1",
+    "@spec/cli": "2.1.2",
+    "@spec/server": "2.1.2",
     "express": "4.16.2",
     "prop-types": "15.6.0",
     "react": "16.2.0",
