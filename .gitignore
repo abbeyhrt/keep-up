@@ -1,0 +1,29 @@
+# Build folders
+build
+lib
+dist
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Certificates
+*.crt
+*.pem
+
+# Editor
+.DS_Store
+*.swp
+.idea
+.vscode
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Dependency directory
+node_modules
