@@ -1,8 +1,10 @@
 'use strict';
 
+const { HOST, PORT } = process.env;
+
 module.exports = {
   PROTOCOL: 'http',
-  HOST: 'localhost',
-  PORT: 3000,
+  HOST,
+  PORT,
   NODE_ENV: 'production',
 };
