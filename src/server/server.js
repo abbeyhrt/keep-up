@@ -15,6 +15,8 @@ const middleware = [
   // "Security" middleware
   require('@spec/server/middleware/security')(),
 
+  require('./middleware/graphql'),
+
   // Handle serving static assets provided through ASSET_PATH
   require('@spec/server/middleware/static'),
 

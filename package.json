@@ -46,10 +46,14 @@
     "@spec/cli": "2.1.2",
     "@spec/server": "2.1.2",
     "express": "4.16.2",
+    "express-graphql": "^0.6.11",
+    "graphiql": "^0.11.11",
+    "graphql": "^0.12.3",
     "prop-types": "15.6.0",
     "react": "16.2.0",
     "react-dom": "16.2.0",
-    "react-hot-loader": "3.1.3"
+    "react-hot-loader": "3.1.3",
+    "react-router-dom": "^4.2.2"
   },
   "devDependencies": {
     "babel-eslint": "8.2.1",
