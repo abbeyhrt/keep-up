@@ -2,21 +2,41 @@
 // export that shit
 'use strict';
 
-const graphqlHTTP = require('express-graphql');
-const { graphql, buildSchema } = require('graphql');
+//const graphqlHTTP = require('express-graphql');
+const { buildSchema } = require('graphql');
 
 // TODO: add mutations
 
 const schema = buildSchema(`
 type Query {
-  user(id: String!): User
+  users: [User]
+  user(id: ID!): User
   home: Home
   rooms: [Room]
   tasks: [Task]
 }
 
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+  updateUser(input: UpdateUserInput!): User!
+  destroyUser(input: DestroyUserInput!): ID
+
+  createHome(input: CreateHomeInput!): Home!
+  updateHome(input: UpdateHomeInput!): Home!
+  destroyHome(input: DestroyHomeInput!): ID
+
+  createRoom(input: CreateRoomInput!): Room!
+  updateRoom(input: UpdateRoomInput!): Room!
+  destroyRoom(input: DestroyRoomInput!): ID
+
+  createTask(input: CreateTaskInput!): Task!
+  updateTask(input: UpdateTaskInput!): Task!
+  destroyTask(input: DestroyTaskInput!): ID
+
+}
+
 type User {
-  id: String!
+  id: ID!
   name: String!
   email: String!
   avatar_url: String
@@ -24,8 +44,23 @@ type User {
   tasks: [Task]
 }
 
+input CreateUserInput {
+  name: String!
+  email: String!
+}
+
+input UpdateUserInput {
+  id: ID!
+  name: String!
+  email: String!
+}
+
+input DestroyUserInput {
+  id: ID!
+}
+
 type Home {
-  id: String!
+  id: ID!
   name: String!
   description: String!
   avatar_url: String
@@ -34,21 +69,65 @@ type Home {
   tasks: [Task]
 }
 
+input CreateHomeInput {
+  name: String!
+  description: String!
+}
+
+input UpdateHomeInput {
+  id: ID!
+  name: String!
+  description: String!
+}
+
+input DestroyHomeInput {
+  id: ID!
+}
+
 type Room {
-  id: String!
+  id: ID!
   name: String!
   description: String!
   avatar_url: String
   tasks: [Task]
 }
+input CreateRoomInput {
+  name: String!
+  description: String!
+}
+
+input UpdateRoomInput {
+  id: ID!
+  name: String!
+  description: String!
+}
+
+input DestroyRoomInput {
+  id: ID!
+}
 
 type Task {
-  id: String!
+  id: ID!
   title: String!
   description: String!
   assignees: [User]
   frequency: Frequency
   status: Status
+}
+
+input CreateTaskInput {
+  title: String!
+  description: String!
+}
+
+input UpdateTaskInput {
+  id: ID!
+  title: String!
+  description: String!
+}
+
+input DestroyTaskInput {
+  id: ID!
 }
 
 enum Frequency {
@@ -63,9 +142,6 @@ enum Frequency {
 enum Status {
   COMPLETE
   INCOMPLETE
-}`
-)
-
+}`);
 
 module.exports = schema;
-
