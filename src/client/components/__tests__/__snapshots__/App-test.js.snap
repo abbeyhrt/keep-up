@@ -2,8 +2,50 @@
 
 exports[`App should render 1`] = `
 <App>
-  <h1>
-    Keep Up
-  </h1>
+  <BrowserRouter>
+    <Router
+      history={
+        Object {
+          "action": "POP",
+          "block": [Function],
+          "createHref": [Function],
+          "go": [Function],
+          "goBack": [Function],
+          "goForward": [Function],
+          "length": 1,
+          "listen": [Function],
+          "location": Object {
+            "hash": "",
+            "pathname": "blank",
+            "search": "",
+            "state": undefined,
+          },
+          "push": [Function],
+          "replace": [Function],
+        }
+      }
+    >
+      <div
+        className="content"
+      >
+        <h1>
+          Keep Up
+        </h1>
+        <hr />
+        <div
+          className="nav-menu"
+        >
+          <Route
+            component={[Function]}
+            path="/login"
+          />
+          <Route
+            component={[Function]}
+            path="/home"
+          />
+        </div>
+      </div>
+    </Router>
+  </BrowserRouter>
 </App>
 `;
