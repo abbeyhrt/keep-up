@@ -1,6 +1,6 @@
 'use strict';
 
-const { User, Home, Task, Room } = require('../store');
+const { User } = require('../store');
 
 describe('Store', () => {
   describe('User', () => {
