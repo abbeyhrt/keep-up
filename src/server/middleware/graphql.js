@@ -3,48 +3,101 @@
 const { NODE_ENV } = require('config');
 const graphqlHTTP = require('express-graphql');
 const schema = require('../schema');
-
-// TODO: make a local "store" for each "resource"
+const { User, Home, Room, Task } = require('../store');
+const { userSeeds } = require('./mockData');
 
 const resolvers = {
-  user: () => ({
-    id: '1',
-    name: 'Josh!!',
-    email: 'joshblack@gmail.com',
-    tasks: () => [{
-      id: '6',
-      title: 'Vaccum',
-      description: 'Vaccuum bedroom 1'
-    }],
-    home: () => ({
-      id: '2',
-      name: 'Home of Josh',
-      description: 'Beauiftul 2 bedroom 2 bathroom',
-      tasks: () => [{
-        id: '4',
-        title: 'Dust shelves in kitchen',
-        description: 'Use Pledge and a clean rag on all surfaces'
-      }],
-      rooms: () => [{
-        id: '5',
-        name: 'Master Bedroom',
-        description: 'Abbey and josh"s bedroom',
-        tasks: () => [{
-          id: '3',
-          title: 'Wash sheets',
-          description: 'Use the floral scented detergent and do not forget the pillow cases'
-        }]
-      }]
-    })
-  })
+  users: () => User.all(),
 
+  user: args => {
+    return User.find(args.id);
+  },
+
+  createUser: args => {
+    return User.create(args.input);
+  },
+
+  updateUser: args => {
+    //console.log(user);
+    return User.update(args.input.id, args.input);
+  },
+
+  destroyUser: args => {
+    return User.destroy(args.input.id);
+  },
+
+  homes: () => Home.all(),
+
+  home: args => {
+    return Home.find(args.id);
+  },
+
+  createHome: args => {
+    return Home.create(args.input);
+  },
+
+  updateHome: args => {
+    //console.log(Home);
+    return Home.update(args.input.id, args.input);
+  },
+
+  destroyHome: args => {
+    return Home.destroy(args.input.id);
+  },
+
+  rooms: () => Room.all(),
+
+  room: args => {
+    return Room.find(args.id);
+  },
+
+  createRoom: args => {
+    return Room.create(args.input);
+  },
+
+  updateRoom: args => {
+    //console.log(Room);
+    return Room.update(args.input.id, args.input);
+  },
+
+  destroyRoom: args => {
+    return Room.destroy(args.input.id);
+  },
+
+  tasks: () => Task.all(),
+
+  task: args => {
+    return Task.find(args.id);
+  },
+
+  createTask: args => {
+    return Task.create(args.input);
+  },
+
+  updateTask: args => {
+    //console.log(Task);
+    return Task.update(args.input.id, args.input);
+  },
+
+  destroyTask: args => {
+    return Task.destroy(args.input.id);
+  },
 };
 
-module.exports = server => {
-  server.use('/graphql', graphqlHTTP({
-    schema,
-    graphiql: true,
-    rootValue: resolvers
-  }))
+async function seed() {
+  await Promise.all(userSeeds.map(User.create));
+}
+
+module.exports = async server => {
+  await seed();
+
+  server.use(
+    '/graphql',
+    graphqlHTTP({
+      schema,
+      graphiql: NODE_ENV === 'development',
+      rootValue: resolvers,
+    })
+  );
   return server;
 };
