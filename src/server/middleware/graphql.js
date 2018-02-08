@@ -1,5 +1,6 @@
 'use strict';
 
+// eslint-disable-next-line import/no-extraneous-dependencies
 const { NODE_ENV } = require('config');
 const graphqlHTTP = require('express-graphql');
 const schema = require('../schema');
@@ -18,7 +19,6 @@ const resolvers = {
   },
 
   updateUser: args => {
-    //console.log(user);
     return User.update(args.input.id, args.input);
   },
 
@@ -37,7 +37,6 @@ const resolvers = {
   },
 
   updateHome: args => {
-    //console.log(Home);
     return Home.update(args.input.id, args.input);
   },
 
@@ -75,7 +74,6 @@ const resolvers = {
   },
 
   updateTask: args => {
-    //console.log(Task);
     return Task.update(args.input.id, args.input);
   },
 
