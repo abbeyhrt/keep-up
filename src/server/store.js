@@ -63,7 +63,6 @@ const makeUserStore = () => {
 const makeTaskStore = () => {
   let _localId = 0;
   const tasks = [];
-
   async function all() {
     return tasks;
   }
@@ -72,9 +71,8 @@ const makeTaskStore = () => {
     const task = tasks.filter(task => task.id === id);
     if (task.length > 0) {
       return task[0];
-    } else {
-      throw new Error('Unable to find task for id: ' + id);
     }
+    throw new Error('Unable to find Task for id: ' + id);
   }
 
   async function create(task) {
