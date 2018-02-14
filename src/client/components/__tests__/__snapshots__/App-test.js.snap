@@ -37,11 +37,59 @@ exports[`App should render 1`] = `
         >
           <Route
             component={[Function]}
+            path="/home"
+          />
+          <Route
+            component={[Function]}
+            path="/home/edit"
+          />
+          <Route
+            component={[Function]}
             path="/login"
           />
           <Route
             component={[Function]}
-            path="/home"
+            path="/sign-up"
+          />
+          <Route
+            component={[Function]}
+            path="/rooms"
+          />
+          <Route
+            component={[Function]}
+            path="/rooms/:room"
+          />
+          <Route
+            component={[Function]}
+            path="rooms/:room/edit"
+          />
+          <Route
+            component={[Function]}
+            path="/tasks"
+          />
+          <Route
+            component={[Function]}
+            path="/tasks/:task"
+          />
+          <Route
+            component={[Function]}
+            path="tasks/:task/edit"
+          />
+          <Route
+            component={[Function]}
+            path="/whoops"
+          />
+          <Route
+            component={[Function]}
+            path="/server-error"
+          />
+          <Route
+            component={[Function]}
+            path="/onboarding/"
+          />
+          <Route
+            component={[Function]}
+            path="/onboarding/:step"
           />
         </div>
       </div>

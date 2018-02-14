@@ -5,7 +5,7 @@ const { NODE_ENV } = require('config');
 const graphqlHTTP = require('express-graphql');
 const schema = require('../schema');
 const { User, Home, Room, Task } = require('../store');
-const { userSeeds } = require('./mockData');
+const { userSeeds, taskSeeds, homeSeeds, roomSeeds } = require('./mockData');
 
 const resolvers = {
   users: () => User.all(),
@@ -55,7 +55,6 @@ const resolvers = {
   },
 
   updateRoom: args => {
-    //console.log(Room);
     return Room.update(args.input.id, args.input);
   },
 
@@ -82,12 +81,27 @@ const resolvers = {
   },
 };
 
-async function seed() {
+async function userSeed() {
   await Promise.all(userSeeds.map(User.create));
 }
 
+async function taskSeed() {
+  await Promise.all(taskSeeds.map(Task.create));
+}
+
+async function homeSeed() {
+  await Promise.all(homeSeeds.map(Home.create));
+}
+
+async function roomSeed() {
+  await Promise.all(roomSeeds.map(Room.create));
+}
+
 module.exports = async server => {
-  await seed();
+  await userSeed();
+  await taskSeed();
+  await homeSeed();
+  await roomSeed();
 
   server.use(
     '/graphql',

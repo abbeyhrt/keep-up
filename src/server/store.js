@@ -111,6 +111,7 @@ const makeTaskStore = () => {
 
   return {
     all,
+    find,
     create,
     update,
     destroy,
@@ -171,6 +172,7 @@ const makeHomeStore = () => {
 
   return {
     all,
+    find,
     create,
     update,
     destroy,
@@ -226,6 +228,7 @@ const makeRoomStore = () => {
 
   return {
     all,
+    find,
     create,
     update,
     destroy,

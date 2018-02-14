@@ -11,9 +11,12 @@ const schema = buildSchema(`
 type Query {
   users: [User]
   user(id: ID!): User
-  home: Home
+  home(id: ID!): Home
+  homes: [Home]
   rooms: [Room]
+  room(id: ID!): Room
   tasks: [Task]
+  task(id: ID!): Task
 }
 
 type Mutation {
