@@ -11,6 +11,7 @@ import Onboard from './Onboard';
 import HomeForm from './HomeForm';
 import RoomForm from './RoomForm';
 import TaskForm from './TaskForm';
+import OnboardPart2 from './OnboardPart2';
 
 const App = () => (
   <Router>
@@ -28,9 +29,10 @@ const App = () => (
         <Route path="/tasks" component={Task} />
         <Route path="/tasks/:task" component={Task} />
         <Route path="tasks/:task/edit" component={TaskForm} />
-        <Route path="/not-found" component={NotFound} />
+        <Route path="/whoops" component={NotFound} />
         <Route path="/server-error" component={ServerError} />
-        <Route path="/onboarding/step-1" component={Onboard} />
+        <Route path="/onboarding/" component={Onboard} />
+        <Route path="/onboarding/:step" component={OnboardPart2} />
       </div>
     </div>
   </Router>
