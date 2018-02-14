@@ -65,7 +65,6 @@ const resolvers = {
   tasks: () => Task.all(),
 
   task: args => {
-    console.log(args);
     return Task.find(args.id);
   },
 
