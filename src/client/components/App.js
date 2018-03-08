@@ -3,14 +3,15 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import Login from './Login';
 import Home from './Home';
 import Room from './Room';
+import Rooms from './Rooms';
 import SignUp from './SignUp';
-import Task from './Task';
 import NotFound from './NotFound';
 import ServerError from './ServerError';
 import Onboard from './Onboard';
 import HomeForm from './HomeForm';
 import RoomForm from './RoomForm';
-import TaskForm from './TaskForm';
+import Task from './Task';
+import Tasks from './Tasks';
 import OnboardPart2 from './OnboardPart2';
 
 const App = () => (
@@ -23,12 +24,12 @@ const App = () => (
         <Route path="/home/edit" component={HomeForm} />
         <Route path="/login" component={Login} />
         <Route path="/sign-up" component={SignUp} />
-        <Route path="/rooms" component={Room} />
-        <Route path="/rooms/:room" component={Room} />
+        <Route exact path="/rooms" component={Rooms} />
+        <Route exact path="/rooms/:room" component={Room} />
         <Route path="rooms/:room/edit" component={RoomForm} />
-        <Route path="/tasks" component={Task} />
-        <Route path="/tasks/:task" component={Task} />
-        <Route path="tasks/:task/edit" component={TaskForm} />
+        <Route exact path="/tasks" component={Tasks} />
+        <Route exact path="/tasks/:task" component={Task} />
+        {/* <Route path="tasks/:task/edit" component={TaskFormc} /> */}
         <Route path="/whoops" component={NotFound} />
         <Route path="/server-error" component={ServerError} />
         <Route path="/onboarding/" component={Onboard} />
