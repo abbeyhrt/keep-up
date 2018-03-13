@@ -23,6 +23,6 @@ module.exports = {
     callbackURL: 'https://localhost:3000/auth/google/callback',
   },
   session: {
-    sessionSecret: process.env.SESSION_COOKIE_SECRET,
+    secret: process.env.SESSION_COOKIE_SECRET,
   },
 };

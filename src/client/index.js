@@ -12,19 +12,9 @@ import { AppContainer } from 'react-hot-loader';
 import App from './components/App';
 
 const client = new ApolloClient({
-  // by default, this client will send queries to the /graphql endpoint
-  //but can be changed by adding a different url into HttpLink({})
   link: new HttpLink(),
   cache: new InMemoryCache(),
 });
-
-// prettier-ignore
-// client.query({ query: gql` { homes {
-//   id
-//   name
-//   description
-// }
-// }`}).then((...args) => console.log(args));
 
 const mountNode = document.getElementById('root');
 const render = (Component, callback) => {

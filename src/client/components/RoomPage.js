@@ -10,11 +10,13 @@ class RoomPage extends Component {
       description: PropTypes.string.isRequired,
     }).isRequired,
   };
+
   render() {
+    const { name, description } = this.props.room;
     return (
       <div>
-        <h2>{this.props.room.name}</h2>
-        <p>{this.props.room.description}</p>
+        <h2>{name}</h2>
+        <p>{description}</p>
       </div>
     );
   }

@@ -17,7 +17,7 @@ module.exports = server => {
     session({
       resave: true,
       saveUninitialized: true,
-      secret: config.get('session.sessionSecret'),
+      secret: config.get('session.secret'),
       maxAge: 86400,
     })
   );
