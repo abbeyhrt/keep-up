@@ -3,12 +3,6 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 
-// class RoomPage extends Component {
-//   render() {
-//     return <Room {...data.room} />;
-//   }
-// }
-
 class Room extends Component {
   static propTypes = {
     roomQuery: PropTypes.shape({

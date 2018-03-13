@@ -125,14 +125,6 @@ module.exports = server => {
     }
   );
 
-  server.get('/login', (req, res) => {
-    res.json({
-      url: req.url,
-      facebook: 'https://localhost:3000/auth/facebook',
-      google: 'https://localhost:3000/auth/google',
-    });
-  });
-
   server.get('/protected', authRequired, (req, res) => {
     res.json(req.user);
   });
