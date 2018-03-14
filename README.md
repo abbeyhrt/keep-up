@@ -11,8 +11,6 @@ Available scripts:
 spec-cli build
 
 # Run a local server for development
-
-
 spec-cli dev
 
 # Develop your server locally

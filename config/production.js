@@ -7,4 +7,17 @@ module.exports = {
   HOST,
   PORT,
   NODE_ENV: 'production',
+  facebook: {
+    clientID: process.env.FB_CLIENT_ID,
+    clientSecret: process.env.FB_CLIENT_SECRET,
+    callbackURL: 'https://keep-up-dev.mybluemix.net/auth/facebook/callback',
+  },
+  google: {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: 'https://keep-up-dev.mybluemix.net/auth/google/callback',
+  },
+  session: {
+    secret: process.env.SESSION_COOKIE_SECRET,
+  },
 };

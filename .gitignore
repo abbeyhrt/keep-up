@@ -27,3 +27,7 @@ coverage
 
 # Dependency directory
 node_modules
+
+# Ignore environment information
+*.env
+*.env.*

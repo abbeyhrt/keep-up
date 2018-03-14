@@ -1,10 +1,48 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
 
-const Task = () => (
-  <div className="wrapper">
-    <h1>Tasks</h1>
-    <p>Log in to view your home and tasks to do today!</p>
-  </div>
-);
+class Task extends Component {
+  static propTypes = {
+    taskQuery: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+    }),
+  };
+  render() {
+    const { taskQuery } = this.props;
+    if (taskQuery && taskQuery.loading) {
+      return <div>Loading...</div>;
+    }
 
-export default Task;
+    if (taskQuery && taskQuery.error) {
+      // eslint-disable-next-line no-console
+      console.log(taskQuery.error);
+      return <div>Error</div>;
+    }
+
+    return (
+      <div>
+        <h2>{taskQuery.task.title}</h2>
+        <p>{taskQuery.task.description}</p>
+      </div>
+    );
+  }
+}
+
+const TASK_QUERY = gql`
+  query TaskQuery($id: ID!) {
+    task(id: $id) {
+      id
+      title
+      description
+    }
+  }
+`;
+
+export default graphql(TASK_QUERY, {
+  name: 'taskQuery',
+  options: props => ({ variables: { id: props.match.params.task } }),
+})(Task);
