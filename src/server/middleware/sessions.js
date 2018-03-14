@@ -78,17 +78,6 @@ module.exports = server => {
     next();
   }
 
-  // function addTemplateVariables(req, res, next) {
-  //   res.locals.profile = req.user;
-  //   res.locals.login = `/auth/login?return=${encodeURIComponent(
-  //     req.originalUrl
-  //   )}`;
-  //   res.locals.logout = `/auth/logout?return=${encodeURIComponent(
-  //     req.originalUrl
-  //   )}`;
-  //   next();
-  // }
-
   passport.use(
     new FacebookStrategy(
       {
@@ -99,9 +88,6 @@ module.exports = server => {
       },
       (accessToken, refreshToken, profile, cb) => {
         cb(null, profile);
-        // User.findOrCreate({ facebookId: profile.id }, function(err, user) {
-        //   return cb(err, user);
-        // });
       }
     )
   );
@@ -120,8 +106,6 @@ module.exports = server => {
     }),
     (req, res) => {
       res.send('OK');
-      // res.json(user);
-      // res.redirect('/');
     }
   );
 

@@ -10,12 +10,12 @@ module.exports = {
   facebook: {
     clientID: process.env.FB_CLIENT_ID,
     clientSecret: process.env.FB_CLIENT_SECRET,
-    callbackURL: 'https://localhost:3000/auth/facebook/callback',
+    callbackURL: 'https://keep-up-dev.mybluemix.net/auth/facebook/callback',
   },
   google: {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: 'https://localhost:3000/auth/google/callback',
+    callbackURL: 'https://keep-up-dev.mybluemix.net/auth/google/callback',
   },
   session: {
     secret: process.env.SESSION_COOKIE_SECRET,
