@@ -1,0 +1,12 @@
+# Logs
+*.log
+
+# Editor
+.DS_Store
+*.swp
+.idea
+.vscode
+
+# Environment files
+*.env.*
+!.env.template
