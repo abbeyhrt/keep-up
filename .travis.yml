@@ -8,3 +8,11 @@ script:
 
 notifications:
   email: false
+
+deploy:
+  provider: cloudfoundry
+  username: apikey
+  password: $CLOUD_API_KEY
+  api: https://api.ng.bluemix.net
+  organization: joshblack@us.ibm.com
+  space: keep-up
