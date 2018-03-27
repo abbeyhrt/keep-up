@@ -3,8 +3,8 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/keep-up-graphql/internal/config"
-	"github.com/keep-up-graphql/internal/pubapi/pubapisrv"
+	"github.com/abbeyhrt/keep-up-graphql/internal/config"
+	"github.com/abbeyhrt/keep-up-graphql/internal/pubapi/pubapisrv"
 )
 
 func main() {

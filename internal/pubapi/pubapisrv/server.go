@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/abbeyhrt/keep-up-graphql/internal/config"
 	"github.com/gorilla/mux"
-	"github.com/keep-up-graphql/internal/config"
 )
 
 func New(cfg config.Config) (*http.Server, error) {
