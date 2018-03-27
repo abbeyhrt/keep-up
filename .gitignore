@@ -8,5 +8,6 @@
 .vscode
 
 # Environment files
+.env
 *.env.*
 !.env.template
