@@ -1,12 +1,16 @@
 package config
 
-import "os"
+import (
+	"net/url"
+	"os"
+)
 
 type Config struct {
-	Host string
-	Port string
-	Addr string
-	Env  string
+	Host     string
+	Port     string
+	Addr     string
+	Env      string
+	Postgres url.URL
 }
 
 func New() Config {
@@ -25,11 +29,33 @@ func New() Config {
 		env = "development"
 	}
 
+	sslmode := os.Getenv("DB_SSL_MODE")
+	if sslmode == "" {
+		sslmode = "require"
+	}
+
+	pg := url.URL{
+		Scheme: "postgres",
+		User: url.UserPassword(
+			os.Getenv("DB_USERNAME"),
+			os.Getenv("DB_PASSWORD"),
+		),
+		Host: os.Getenv("DB_ADDRESS"),
+		Path: os.Getenv("DB_NAME"),
+	}
+
+	v := url.Values{}
+
+	v.Set("sslmode", sslmode)
+
+	pg.RawQuery = v.Encode()
+
 	cfg := Config{
-		Host: host,
-		Port: port,
-		Addr: host + ":" + port,
-		Env:  env,
+		Host:     host,
+		Port:     port,
+		Addr:     host + ":" + port,
+		Env:      env,
+		Postgres: pg,
 	}
 
 	return cfg
