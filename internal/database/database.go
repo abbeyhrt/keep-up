@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	//i need it
+	// This import is required because Package pq is a pure Go Postgres driver for the database/sql package.
 	_ "github.com/lib/pq"
 )
 
