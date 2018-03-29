@@ -11,7 +11,7 @@ import (
 func New(cfg config.Config) (*http.Server, error) {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello world!!"))
+		w.Write([]byte("Hello world"))
 	})
 
 	srv := http.Server{
