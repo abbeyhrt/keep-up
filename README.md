@@ -14,7 +14,6 @@
 Before running the server, you’ll need to make sure to start up the local database defined in `docker-compose.yml`. You can do this by running:
 
 ```
-bash
 # Run the database in detached mode
 docker-compose up -d
 ```
@@ -26,7 +25,6 @@ You can verify that postgres is up by running `docker ps` and seeing the postgre
 You can start the server locally by running:
 
 ```
-go
 # Source your local `.env` file
 source .env
 go run cmd/pubapid/main.go
