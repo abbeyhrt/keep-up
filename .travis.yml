@@ -19,7 +19,7 @@ after_success:
   - ./google-cloud-sdk/install.sh
   - source google-cloud-sdk/path.bash.inc
   - source google-cloud-sdk/completion.bash.inc
-  - gloud init
+  - gcloud init
   - echo $CLOUD_SERVICE_KEY | base64 --decode > client-secret.json
   - gcloud auth activate-service-account --key-file client-secret.json
   - gcloud components install kubectl
