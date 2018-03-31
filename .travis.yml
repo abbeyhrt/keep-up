@@ -23,6 +23,7 @@ script:
 after_success:
   - export TAG=v1.0
   - make build
+  - make publish
 
 notifications:
   email: false
