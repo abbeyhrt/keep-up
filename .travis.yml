@@ -4,12 +4,15 @@ language: go
 go:
   - "1.10"
 
+env:
+  - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
 services:
   - docker
 
 before_install:
 - if [ ! -d ${HOME}/google-cloud-sdk ]; then
-     curl https://sdk.cloud.google.com | bash;
+    curl https://sdk.cloud.google.com | bash;
   fi
 - echo $CLOUD_ACCOUNT_INFO > client-secret.json
 - gcloud auth activate-service-account --key-file client-secret.json
