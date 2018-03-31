@@ -15,7 +15,7 @@ script:
 
 after_success:
   - curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-195.0.0-linux-x86_64.tar.gz \
-    | tar -x
+    | tar -xz
   - ./google-cloud-sdk/install.sh
   - source google-cloud-sdk/path.bash.inc
   - source google-cloud-sdk/completion.bash.inc
