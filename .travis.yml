@@ -10,20 +10,21 @@ env:
 services:
   - docker
 
-before_install:
-- if [ ! -d ${HOME}/google-cloud-sdk ]; then
-    curl https://sdk.cloud.google.com | bash;
-  fi
-- echo $CLOUD_SERVICE_KEY | base64 --decode > client-secret.json
-- gcloud auth activate-service-account --key-file client-secret.json
-
 script:
   - go test ./...
 
 after_success:
-  - export TAG=v1.0
-  - make build
-  - make publish
+  - if [ ! -d ${HOME}/google-cloud-sdk ]; then
+      curl https://sdk.cloud.google.com | bash;
+    fi
+  - echo $CLOUD_SERVICE_KEY | base64 --decode > client-secret.json
+  - gcloud auth activate-service-account --key-file client-secret.json
+  - gcloud components install kubectl
+  - gcloud container clusters get-credentials keep-up
+  - kubectl get pods
+  # - export TAG=v1.0
+  # - make build
+  # - make publish
 
 notifications:
   email: false
