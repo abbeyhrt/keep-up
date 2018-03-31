@@ -14,9 +14,12 @@ script:
   - go test ./...
 
 after_success:
-  - if [ ! -d ${HOME}/google-cloud-sdk ]; then
-      curl https://sdk.cloud.google.com | bash;
-    fi
+  - curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-195.0.0-linux-x86_64.tar.gz \
+    | tar -x
+  - ./google-cloud-sdk/install.sh
+  - source google-cloud-sdk/path.bash.inc
+  - source google-cloud-sdk/completion.bash.inc
+  - gloud init
   - echo $CLOUD_SERVICE_KEY | base64 --decode > client-secret.json
   - gcloud auth activate-service-account --key-file client-secret.json
   - gcloud components install kubectl
