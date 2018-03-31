@@ -1,18 +1,32 @@
+sudo: required
 language: go
 
 go:
   - "1.10"
 
+env:
+  - PATH=$PATH:${HOME}/google-cloud-sdk/bin CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
+services:
+  - docker
+
 script:
   - go test ./...
 
+after_success:
+  - curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-195.0.0-linux-x86_64.tar.gz \
+    | tar -xz
+  - ./google-cloud-sdk/install.sh
+  - source google-cloud-sdk/path.bash.inc
+  - source google-cloud-sdk/completion.bash.inc
+  - echo $CLOUD_SERVICE_KEY | base64 --decode > client-secret.json
+  - gcloud auth activate-service-account --key-file client-secret.json
+  - gcloud components install kubectl
+  - gcloud container clusters get-credentials keep-up --zone us-central1-a
+  - kubectl get pods
+  # - export TAG=v1.0
+  # - make build
+  # - make publish
+
 notifications:
   email: false
-
-deploy:
-  provider: cloudfoundry
-  username: apikey
-  password: $CLOUD_API_KEY
-  api: https://api.ng.bluemix.net
-  organization: joshblack@us.ibm.com
-  space: keep-up

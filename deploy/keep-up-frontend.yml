@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: keep-up-frontend
+  labels:
+    app: keep-up
+    tier: frontend
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: keep-up
+        tier: frontend
+    spec:
+      containers:
+      - name: keep-up-app
+        image: gcr.io/keep-up-199521/keep-up-graphql:v1.0
+        ports:
+        - name: http-server
+          containerPort: 3000
