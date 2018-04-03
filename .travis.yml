@@ -9,10 +9,9 @@ script:
 notifications:
   email: false
 
+
 deploy:
-  provider: cloudfoundry
-  username: apikey
-  password: $CLOUD_API_KEY
-  api: https://api.ng.bluemix.net
-  organization: joshblack@us.ibm.com
-  space: keep-up
+  provider: script
+  script: yarn global add now && now --token=$NOW_TOKEN
+  on:
+    branch: now_deploy
