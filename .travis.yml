@@ -12,6 +12,6 @@ notifications:
 
 deploy:
   provider: script
-  script: yarn global add now && now --token=$NOW_TOKEN
+  script: yarn global add now && now --public --token=$NOW_TOKEN
   on:
     branch: now_deploy
