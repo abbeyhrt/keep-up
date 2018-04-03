@@ -123,5 +123,4 @@ func TestDatabaseConfig(t *testing.T) {
 			cfg.Postgres.RawQuery,
 		)
 	}
-
 }
