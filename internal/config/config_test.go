@@ -1,6 +1,8 @@
 package config_test
 
 import (
+	"fmt"
+	"net/url"
 	"os"
 	"testing"
 
@@ -55,4 +57,71 @@ func TestConfigFromEnv(t *testing.T) {
 	if cfg.Addr != expected.addr {
 		t.Errorf("expected addr '%s', instead got '%s'", expected.addr, cfg.Addr)
 	}
+}
+
+func TestDatabaseConfig(t *testing.T) {
+	os.Clearenv()
+
+	expected := struct {
+		sslmode  string
+		username string
+		password string
+		name     string
+		address  string
+	}{
+		"require",
+		"user",
+		"password",
+		"postgres",
+		"bumblebee",
+	}
+
+	os.Setenv("DB_SSL_MODE", expected.sslmode)
+	os.Setenv("DB_USERNAME", expected.username)
+	os.Setenv("DB_PASSWORD", expected.password)
+	os.Setenv("DB_NAME", expected.name)
+	os.Setenv("DB_ADDRESS", expected.address)
+
+	cfg := config.New()
+	fmt.Println(cfg)
+
+	if cfg.Postgres.Host != expected.address {
+		t.Errorf(
+			"expected host: %s, instead got: %s",
+			expected.address,
+			cfg.Postgres.Host,
+		)
+	}
+
+	user := url.UserPassword(expected.username, expected.password)
+	if cfg.Postgres.User.String() != user.String() {
+		t.Errorf(
+			"expected user: %s, instead got: %s",
+			user.String(),
+			cfg.Postgres.User.String(),
+		)
+	}
+
+	if cfg.Postgres.Path != expected.name {
+		t.Errorf(
+			"expected host: %s, instead got: %s",
+			expected.name,
+			cfg.Postgres.Path,
+		)
+	}
+
+	v := url.Values{}
+
+	v.Set("sslmode", expected.sslmode)
+
+	rawQuery := v.Encode()
+
+	if cfg.Postgres.RawQuery != rawQuery {
+		t.Errorf(
+			"expected sslmode: %s, instead got: %s",
+			rawQuery,
+			cfg.Postgres.RawQuery,
+		)
+	}
+
 }

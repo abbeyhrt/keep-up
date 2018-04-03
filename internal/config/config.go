@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// Config struct for creating server and database connection
 type Config struct {
 	Host     string
 	Port     string
@@ -13,6 +14,7 @@ type Config struct {
 	Postgres url.URL
 }
 
+// New function to create a new instance of a server or database
 func New() Config {
 	host := os.Getenv("HOST")
 	if host == "" {
