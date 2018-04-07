@@ -1,17 +1,18 @@
 language: go
 
 go:
-  - "1.10"
+  - '1.10'
 
 script:
   - go test ./...
 
+deploy:
+  provider: cloudfoundry
+  username: apikey
+  password: $CLOUD_API_KEY
+  api: https://api.ng.bluemix.net
+  organization: $CLOUD_ORG
+  space: $CLOUD_SPACE
+
 notifications:
   email: false
-
-
-deploy:
-  provider: script
-  script: yarn global add now && now --public --token=$NOW_TOKEN
-  on:
-    branch: master
