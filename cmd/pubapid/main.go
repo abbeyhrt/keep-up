@@ -15,11 +15,9 @@ func main() {
 		log.SetFormatter(&log.JSONFormatter{})
 	}
 
-	if cfg.Env == "development" {
-		_, err := database.New(cfg.Postgres.String())
-		if err != nil {
-			log.Fatal(err)
-		}
+	_, err := database.New(cfg.Postgres.String())
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	srv, err := pubapisrv.New(cfg)
