@@ -11,6 +11,10 @@ import (
 func main() {
 	cfg := config.New()
 
+	if cfg.Env == "production" {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
+
 	if cfg.Env == "development" {
 		_, err := database.New(cfg.Postgres.String())
 		if err != nil {
