@@ -49,6 +49,7 @@ func New() Config {
 	v := url.Values{}
 
 	v.Set("sslmode", sslmode)
+	v.Set("connect_timeout", "15")
 
 	pg.RawQuery = v.Encode()
 
