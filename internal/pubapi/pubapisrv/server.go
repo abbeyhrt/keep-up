@@ -1,6 +1,7 @@
 package pubapisrv
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func New(cfg config.Config) (*http.Server, error) {
+func New(ctx context.Context, cfg config.Config) (*http.Server, error) {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello world"))
