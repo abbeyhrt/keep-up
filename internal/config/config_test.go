@@ -1,7 +1,6 @@
 package config_test
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"testing"
@@ -83,7 +82,6 @@ func TestDatabaseConfig(t *testing.T) {
 	os.Setenv("DB_ADDRESS", expected.address)
 
 	cfg := config.New()
-	fmt.Println(cfg)
 
 	if cfg.Postgres.Host != expected.address {
 		t.Errorf(
@@ -113,6 +111,7 @@ func TestDatabaseConfig(t *testing.T) {
 	v := url.Values{}
 
 	v.Set("sslmode", expected.sslmode)
+	v.Set("connect_timeout", "15")
 
 	rawQuery := v.Encode()
 
