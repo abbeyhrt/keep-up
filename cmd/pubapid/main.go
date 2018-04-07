@@ -24,7 +24,7 @@ func main() {
 	}
 	defer db.Close()
 
-	srv, err := pubapisrv.New(cfg)
+	srv, err := pubapisrv.New(ctx, cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
