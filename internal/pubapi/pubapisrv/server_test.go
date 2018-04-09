@@ -1,6 +1,7 @@
 package pubapisrv_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/abbeyhrt/keep-up-graphql/internal/config"
@@ -8,10 +9,11 @@ import (
 )
 
 func TestNewServer(t *testing.T) {
+	ctx := context.Background()
 	addr := "0.0.0.0:3000"
 	cfg := config.Config{Addr: addr}
 
-	srv, err := pubapisrv.New(cfg)
+	srv, err := pubapisrv.New(ctx, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
