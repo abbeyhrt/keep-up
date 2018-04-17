@@ -1,7 +1,6 @@
 package config_test
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"testing"
@@ -83,7 +82,6 @@ func TestDatabaseConfig(t *testing.T) {
 	os.Setenv("DB_ADDRESS", expected.address)
 
 	cfg, _ := config.New()
-	fmt.Println(cfg)
 
 	if cfg.Postgres.Host != expected.address {
 		t.Errorf(
