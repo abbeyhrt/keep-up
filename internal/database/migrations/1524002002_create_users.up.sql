@@ -8,6 +8,12 @@ CREATE TABLE users (
   provider oauth_provider NOT NULL,
   provider_id VARCHAR NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
+<<<<<<< HEAD
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+=======
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(provider, provider_id)
+);
+>>>>>>> feat(database): add user resource

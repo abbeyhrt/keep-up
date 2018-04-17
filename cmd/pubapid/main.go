@@ -3,11 +3,10 @@ package main
 import (
 	"context"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/abbeyhrt/keep-up-graphql/internal/config"
 	"github.com/abbeyhrt/keep-up-graphql/internal/database"
 	"github.com/abbeyhrt/keep-up-graphql/internal/pubapi/pubapisrv"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {

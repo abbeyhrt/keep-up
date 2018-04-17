@@ -26,6 +26,7 @@ type googleUserInfo struct {
 func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handler {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+<<<<<<< HEAD
 		w.Write([]byte("Hello, World"))
 	})
 	r.HandleFunc("/auth/google", HandleGoogleAuth(ctx, cfg.Google.OAuth))
@@ -35,6 +36,38 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 		cfg.Google.UserInfo,
 		store,
 	))
+=======
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(`
+		<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<title>Keep Up</title>
+		</head>
+		<body>
+			<h1>Keep Up</h1>
+			<a href="/auth/google">Login with Google</a>
+		</body>
+		</html>
+		`))
+	})
+
+	r.HandleFunc(
+		"/auth/google",
+		HandleGoogleAuth(ctx, cfg.Google.OAuth),
+	).Methods("GET")
+
+	r.HandleFunc(
+		"/auth/google/callback",
+		HandleGoogleCallback(
+			ctx,
+			cfg.Google.OAuth,
+			cfg.Google.UserInfo,
+			store,
+		),
+	).Methods("GET")
+>>>>>>> feat(database): add user resource
 
 	return r
 }
@@ -61,7 +94,11 @@ func HandleGoogleCallback(
 		code := r.FormValue("code")
 
 		if code == "" {
+<<<<<<< HEAD
 			http.Error(w, "code mismatch error", http.StatusInternalServerError)
+=======
+			http.Error(w, "no code received", http.StatusInternalServerError)
+>>>>>>> feat(database): add user resource
 			return
 		}
 
