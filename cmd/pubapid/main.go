@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/abbeyhrt/keep-up-graphql/internal/config"
@@ -9,19 +11,26 @@ import (
 )
 
 func main() {
+<<<<<<< HEAD
 	cfg, err := config.New()
 	if err != nil {
 		log.Fatal(err)
+=======
+	cfg := config.New()
+	ctx := context.Background()
+
+	if cfg.Env == "production" {
+		log.SetFormatter(&log.JSONFormatter{})
+>>>>>>> ce7db0c4387d73f1db896a0d51a42ec3d25b569b
 	}
 
-	if cfg.Env == "development" {
-		_, err := database.New(cfg.Postgres.String())
-		if err != nil {
-			log.Fatal(err)
-		}
+	db, err := database.New(ctx, cfg.Postgres.String())
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer db.Close()
 
-	srv, err := pubapisrv.New(cfg)
+	srv, err := pubapisrv.New(ctx, cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
