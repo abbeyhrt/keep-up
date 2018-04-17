@@ -9,7 +9,10 @@ import (
 )
 
 func main() {
-	cfg := config.New()
+	cfg, err := config.New()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if cfg.Env == "development" {
 		_, err := database.New(cfg.Postgres.String())

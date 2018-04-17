@@ -12,7 +12,7 @@ import (
 func TestDefaultConfig(t *testing.T) {
 	os.Clearenv()
 
-	cfg := config.New()
+	cfg, _ := config.New()
 	expected := struct {
 		port string
 		host string
@@ -44,7 +44,7 @@ func TestConfigFromEnv(t *testing.T) {
 	os.Setenv("PORT", expected.port)
 	os.Setenv("HOST", expected.host)
 
-	cfg := config.New()
+	cfg, _ := config.New()
 
 	if cfg.Port != expected.port {
 		t.Errorf("expected port '%s', instead got '%s'", expected.port, cfg.Port)
@@ -82,7 +82,7 @@ func TestDatabaseConfig(t *testing.T) {
 	os.Setenv("DB_NAME", expected.name)
 	os.Setenv("DB_ADDRESS", expected.address)
 
-	cfg := config.New()
+	cfg, _ := config.New()
 	fmt.Println(cfg)
 
 	if cfg.Postgres.Host != expected.address {
