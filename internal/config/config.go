@@ -3,7 +3,15 @@ package config
 import (
 	"net/url"
 	"os"
+
+	"golang.org/x/oauth2"
 )
+
+// Provider struct
+type Provider struct {
+	OAuth    oauth2.Config
+	UserInfo url.URL
+}
 
 // Config struct for creating server and database connection
 type Config struct {
@@ -12,10 +20,11 @@ type Config struct {
 	Addr     string
 	Env      string
 	Postgres url.URL
+	Google   Provider
 }
 
 // New function to create a new instance of a server or database
-func New() Config {
+func New() (Config, error) {
 	host := os.Getenv("HOST")
 	if host == "" {
 		host = "0.0.0.0"
@@ -53,13 +62,31 @@ func New() Config {
 
 	pg.RawQuery = v.Encode()
 
-	cfg := Config{
+	oauth := oauth2.Config{
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+		Scopes:       []string{"https://www.googleapis.com/auth/plus.login"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://accounts.google.com/o/oauth2/token",
+		},
+	}
+
+	userinfo, err := url.Parse(os.Getenv("GOOGLE_ACCESS_URL"))
+	if err != nil {
+		return Config{}, err
+	}
+
+	return Config{
 		Host:     host,
 		Port:     port,
 		Addr:     host + ":" + port,
 		Env:      env,
 		Postgres: pg,
-	}
-
-	return cfg
+		Google: Provider{
+			OAuth:    oauth,
+			UserInfo: *userinfo,
+		},
+	}, nil
 }

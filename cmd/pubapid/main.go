@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	cfg := config.New()
+	cfg, _ := config.New()
 	ctx := context.Background()
 
 	if cfg.Env == "production" {
