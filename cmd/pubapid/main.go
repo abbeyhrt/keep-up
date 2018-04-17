@@ -18,13 +18,12 @@ func main() {
 		log.SetFormatter(&log.JSONFormatter{})
 	}
 
-	db, err := database.New(ctx, cfg.Postgres.String())
+	s, err := database.New(ctx, cfg.Postgres.String())
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
 
-	srv, err := pubapisrv.New(ctx, cfg)
+	srv, err := pubapisrv.New(ctx, cfg, s)
 	if err != nil {
 		log.Fatal(err)
 	}
