@@ -11,17 +11,11 @@ import (
 )
 
 func main() {
-<<<<<<< HEAD
-	cfg, err := config.New()
-	if err != nil {
-		log.Fatal(err)
-=======
-	cfg := config.New()
+	cfg, _ := config.New()
 	ctx := context.Background()
 
 	if cfg.Env == "production" {
 		log.SetFormatter(&log.JSONFormatter{})
->>>>>>> ce7db0c4387d73f1db896a0d51a42ec3d25b569b
 	}
 
 	db, err := database.New(ctx, cfg.Postgres.String())

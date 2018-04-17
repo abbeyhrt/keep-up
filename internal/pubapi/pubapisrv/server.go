@@ -1,6 +1,7 @@
 package pubapisrv
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 )
 
 // New server instance
-func New(cfg config.Config) (*http.Server, error) {
+func New(ctx context.Context, cfg config.Config) (*http.Server, error) {
 	handler := handlers.New(cfg)
 
 	srv := http.Server{
