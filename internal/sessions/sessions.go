@@ -6,9 +6,18 @@ import (
 )
 
 //setCookie
+// var sessions map[string]string
 
+// sessions["session_id"] = "user_id"
+
+// userId, ok := sessions["some_session_id"]
+// if !ok {
+//   // Map doesn't have that session id in it
+//}
 //method on request Cookie
+var dbSessions = map[string]string{}//
 
+dbSessions["session_id"]
 func SetCookie(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name: "my-cookie",
@@ -16,7 +25,7 @@ func SetCookie(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func Read(w http.ResponseWriter, r *http.Request) {
+func SetCookies(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("my-cookie")
 	if err != nil {
 		id := uuid.NewV4();
@@ -27,5 +36,6 @@ func Read(w http.ResponseWriter, r *http.Request) {
 		}
 		http.SetCookie(w, c)
 	}
-	fmt.Fprintln(w, "Your Cookie:", c)
+
+
 }
