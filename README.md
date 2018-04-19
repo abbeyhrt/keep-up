@@ -11,9 +11,8 @@
 
 
 - [Up & Running](#up--running)
-  - [GraphQL](#graphql)
-    - [Local Database setup](#local-database-setup)
-    - [Starting the server](#starting-the-server)
+  - [Local Database setup](#local-database-setup)
+  - [Starting the server](#starting-the-server)
   - [Local `.env` file](#local-env-file)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -25,27 +24,25 @@
 * Golang, can use Homebrew for installation
 * [Docker](https://docs.docker.com/docker-for-mac/install/) for local development
 
-### GraphQL
-
-#### Local Database setup
+### Local Database setup
 
 Before running the server, you’ll need to make sure to start up the local database defined in `docker-compose.yml`. You can do this by running:
 
 ```
 # Run the database in detached mode
-docker-compose up -d
+docker-compose run -d postgres
 ```
 
 You can verify that postgres is up by running `docker ps` and seeing the postgres container in the displayed list.
 
-#### Starting the server
+### Starting the server
 
 You can start the server locally by running:
 
 ```
 # Source your local `.env` file
 source .env
-go run cmd/pubapid/main.go
+go run ./graphql/cmd/pubapid/main.go
 ```
 
 ### Local `.env` file
