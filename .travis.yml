@@ -4,7 +4,7 @@ go:
   - '1.10'
 
 script:
-  - go test ./...
+  - go test ./graphql/...
 
 deploy:
   provider: cloudfoundry
@@ -13,6 +13,7 @@ deploy:
   api: https://api.ng.bluemix.net
   organization: $CLOUD_ORG
   space: $CLOUD_SPACE
+  manifest: ./graphql/manifest.yml
 
 notifications:
   email: false
