@@ -81,9 +81,15 @@
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
 
+[[projects]]
+  name = "gopkg.in/DATA-DOG/go-sqlmock.v1"
+  packages = ["."]
+  revision = "d76b18b42f285b792bf985118980ce9eacea9d10"
+  version = "v1.3.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a0d65852887e868f5e4e30ba845afe80b45f24b3f5d21cfa3186dea84da1ba64"
+  inputs-digest = "a7c2a2ee8d728f6e6b3bd1dce5a55ba1d6cb0c10d8a27118e0ef7064ea10df02"
   solver-name = "gps-cdcl"
   solver-version = 1
