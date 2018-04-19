@@ -1,38 +1,14 @@
 package handlers_test
 
 import (
-<<<<<<< HEAD
-=======
 	"context"
 	"database/sql"
 	"fmt"
->>>>>>> feat(database): add user resource
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
-<<<<<<< HEAD
-	"github.com/abbeyhrt/keep-up-graphql/internal/handlers"
-	"golang.org/x/oauth2"
-)
-
-func TestHandleGoogleAuth(t *testing.T) {
-	oauth := oauth2.Config{
-		ClientID:     "client_id",
-		ClientSecret: "client_secret",
-		RedirectURL:  "http://localhost:3000/auth/google/callback",
-		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile",
-		},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
-			TokenURL: "https://accounts.google.com/o/oauth2/token",
-		},
-	}
-	handler := handlers.HandleGoogleAuth(oauth)
-=======
 	"github.com/abbeyhrt/keep-up-graphql/internal/database"
 	"github.com/abbeyhrt/keep-up-graphql/internal/handlers"
 	"golang.org/x/oauth2"
@@ -103,7 +79,6 @@ func TestHandleGoogleAuth(t *testing.T) {
 	defer f.teardown()
 
 	handler := handlers.HandleGoogleAuth(f.ctx, f.oauth)
->>>>>>> feat(database): add user resource
 	req := httptest.NewRequest("GET", "http://localhost:3000/auth/github", nil)
 	w := httptest.NewRecorder()
 
@@ -120,20 +95,12 @@ func TestHandleGoogleAuth(t *testing.T) {
 		t.Fatalf("expected a location header to exist in the response")
 	}
 
-<<<<<<< HEAD
-	u, _ := url.Parse("https://accounts.google.com/o/oauth2/auth")
-=======
 	u, _ := url.Parse(f.oauth.Endpoint.AuthURL)
->>>>>>> feat(database): add user resource
 	v := url.Values{}
 
 	v.Set("access_type", "offline")
 	v.Set("client_id", "client_id")
-<<<<<<< HEAD
-	v.Set("redirect_uri", "http://localhost:3000/auth/google/callback")
-=======
 	v.Set("redirect_uri", f.oauth.RedirectURL)
->>>>>>> feat(database): add user resource
 	v.Set("response_type", "code")
 	v.Set("scope", "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile")
 	v.Set("state", "state")
@@ -144,8 +111,6 @@ func TestHandleGoogleAuth(t *testing.T) {
 		t.Fatalf("expected location header to be: %s, instead recieved: %s", u.String(), location[0])
 	}
 }
-<<<<<<< HEAD
-=======
 
 func it(should string, t *testing.T, callback func(t *testing.T, f *fixture)) {
 	t.Run("it "+should, func(t *testing.T) {
@@ -260,4 +225,3 @@ func getMockUserService(shouldFail bool) *httptest.Server {
 	)
 	return userStub
 }
->>>>>>> feat(database): add user resource

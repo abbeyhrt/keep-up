@@ -12,17 +12,12 @@ import (
 
 type MockStore struct{}
 
-<<<<<<< HEAD
-func (s *MockStore) CreateUser(ctx context.Context, user models.User) (*models.User, error) {
-	return nil, errors.New("not implemented")
-=======
 func (s *MockStore) CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	return models.User{}, errors.New("not implemented")
 }
 
 func (s *MockStore) FindOrCreateUser(ctx context.Context, user *models.User) error {
 	return errors.New("not implemented")
->>>>>>> feat(database): add user resource
 }
 
 func TestNewServer(t *testing.T) {

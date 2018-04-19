@@ -8,13 +8,10 @@ import (
 	"github.com/abbeyhrt/keep-up-graphql/internal/models"
 )
 
-<<<<<<< HEAD
-=======
 func NewStoreFromClient(db *sql.DB) *SQLStore {
 	return &SQLStore{db}
 }
 
->>>>>>> feat(database): add user resource
 type SQLStore struct {
 	db *sql.DB
 }
@@ -34,12 +31,7 @@ func (s *SQLStore) FindOrCreateUser(
 		&u.UpdatedAt,
 	)
 
-<<<<<<< HEAD
-	switch err {
-	case sql.ErrNoRows:
-=======
 	if err == sql.ErrNoRows {
->>>>>>> feat(database): add user resource
 		user, err := s.CreateUser(ctx, *u)
 		if err != nil {
 			return err
@@ -47,15 +39,9 @@ func (s *SQLStore) FindOrCreateUser(
 
 		*u = user
 		return nil
-<<<<<<< HEAD
-	default:
-		return err
-	}
-=======
 	}
 
 	return err
->>>>>>> feat(database): add user resource
 }
 
 func (s *SQLStore) CreateUser(
