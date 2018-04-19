@@ -29,6 +29,12 @@
   revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
 
 [[projects]]
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
+
+[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
@@ -84,6 +90,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a0d65852887e868f5e4e30ba845afe80b45f24b3f5d21cfa3186dea84da1ba64"
+  inputs-digest = "843fa2f58d831189e6fdca0628ccba72960878b9e02cba38eb59732033fc15dc"
   solver-name = "gps-cdcl"
   solver-version = 1
