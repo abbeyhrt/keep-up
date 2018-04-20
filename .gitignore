@@ -24,3 +24,7 @@ pids
 .env
 *.env.*
 !.env.template
+
+# Coverage directory used by tools like istanbul
+coverage
+results.xml
