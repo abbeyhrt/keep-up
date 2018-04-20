@@ -1,0 +1,15 @@
+---
+applications:
+  - name: keep-up-graphql
+    buildpack: https://github.com/cloudfoundry/go-buildpack.git
+    command: pubapid
+    memory: 128M
+    disk_quota: 128M
+    env:
+      GOVERSION: "go1.10"
+      GOPACKAGENAME: github.com/abbeyhrt/keep-up/graphql
+      GO_INSTALL_PACKAGE_SPEC: ./cmd/pubapid
+      DEPLOY_ENV: production
+    routes:
+      - keep-up-graphql.mybluemix.net
+      - graphql.keepup.company
