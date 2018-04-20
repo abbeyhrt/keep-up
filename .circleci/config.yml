@@ -1,7 +1,7 @@
 # Golang CircleCI 2.0 configuration file
 version: 2
 jobs:
-  test-go:
+  test-graphql:
     docker:
       - image: circleci/golang:1.10
     working_directory: /go/src/github.com/abbeyhrt/keep-up
@@ -11,10 +11,20 @@ jobs:
           name: Run unit tests
           command: go test -v ./...
 
+  test-ui:
+    docker:
+      - image: circleci/node:9
+    working_directory: /go/src/github.com/abbeyhrt/keep-up/ui
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: yarn
+
   deploy-graphql:
     docker:
       - image: kpup/deploy:v0.2
-    working_directory: /go/src/github.com/abbeyhrt/keep-up
+    working_directory: /go/src/github.com/abbeyhrt/keep-up/graphql
     steps:
       - checkout
       - run:
@@ -22,12 +32,12 @@ jobs:
           command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
       - run:
           name: Deploy to CloudFoundry
-          command: cd graphql && bx cf push
+          command: bx cf push
 
   deploy-proxy:
     docker:
       - image: kpup/deploy:v0.2
-    working_directory: /go/src/github.com/abbeyhrt/keep-up
+    working_directory: /go/src/github.com/abbeyhrt/keep-up/proxy
     steps:
       - checkout
       - run:
@@ -35,20 +45,24 @@ jobs:
           command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
       - run:
           name: Deploy to CloudFoundry
-          command: cd proxy && bx cf push
+          command: bx cf push
 
 workflows:
   version: 2
   graphql:
     jobs:
-      - test-go
+      - test-graphql
       - deploy-graphql:
           requires:
-            - test-go
+            - test-graphql
           filters:
             branches:
               # TODO: change to `master`
               only: ci/update-circle-ci
+
+  ui:
+    jobs:
+      - test-ui
 
   proxy:
     jobs:
