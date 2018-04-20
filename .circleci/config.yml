@@ -32,15 +32,15 @@ jobs:
           name: Install dependencies
           command: yarn
       - run:
-          name: Run Build
-          command: cd ui && yarn build
-      - run:
-          name: Make Workspace Directory
+          name: Make workspace directory
           command: mkdir workspace && ls -al
+      - run:
+          name: Run build
+          command: cd ui && yarn build && cp -R build ../workspace/build
       - persist_to_workspace:
           root: workspace
           paths:
-            - ./ui/build
+            - build
 
   deploy-graphql:
     docker:
@@ -81,7 +81,7 @@ jobs:
           command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
       - run:
           name: Copy build files
-          command: cp -R /tmp/workspace/build ui/build
+          command: cp -R workspace/build ui/build
       - run:
           name: Output
           command: ls -al ui
