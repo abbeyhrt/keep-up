@@ -31,7 +31,7 @@ jobs:
       - checkout
       - run:
           name: Login to bx tool
-          command: bx login -u $CLOUD_USER -p $CLOUD_TOKEN -o $CLOUD_ORG -s $CLOUD_SPACE
+          command: bx login -u $CLOUD_USER -p $CLOUD_TOKEN -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
 
       - run: bx cf o
 
