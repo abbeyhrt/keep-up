@@ -73,9 +73,9 @@ jobs:
       - image: kpup/deploy:v0.2
     working_directory: /go/src/github.com/abbeyhrt/keep-up
     steps:
+      - checkout
       - attach_workspace:
           at: workspace
-      - checkout
       - run:
           name: Login to bx tool
           command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
