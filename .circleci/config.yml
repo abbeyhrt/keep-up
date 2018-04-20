@@ -19,7 +19,7 @@ jobs:
       - type: shell
         name: Initialize Working Directory
         pwd: /
-        command: mkdir -p /go/src/github.com/abbeyhrt/keep-up
+        command: sudo mkdir -p /go/src/github.com/abbeyhrt/keep-up
       - checkout
       - run:
           name: Install dependencies
