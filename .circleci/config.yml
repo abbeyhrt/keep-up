@@ -35,7 +35,9 @@ jobs:
 
       - run:
           name: Deploy to CloudFoundry
-          command: bx cf push -f ./graphql/manifest.yml
+          command: |
+            cd graphql
+            bx cf push
 
 workflows:
   version: 2
