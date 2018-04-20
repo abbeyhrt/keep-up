@@ -1,0 +1,80 @@
+{
+  "name": "keep-up",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": "9.x"
+  },
+  "scripts": {
+    "build": "spec-cli build",
+    "ci-check": "yarn format:diff && yarn test --runInBand",
+    "commitmsg": "validate-commit-msg",
+    "dev": "spec-cli dev",
+    "dev:server": "spec-cli dev:server",
+    "format": "prettier --write \"**/*.{scss,css,md,js,json}\"",
+    "format:diff": "prettier --list-different \"**/*.{scss,css,md,js,json}\"",
+    "lint": "eslint -c spec src",
+    "precommit": "lint-staged",
+    "test": "spec-cli test",
+    "start": "spec-cli start"
+  },
+  "spec": {
+    "template": "product"
+  },
+  "config": {
+    "validate-commit-msg": {
+      "helpMessage": "\nNeed help? We're currently using a commit convention that is outlined here:\nhttps://github.com/conventional-changelog/conventional-changelog/blob/v0.5.3/conventions/angular.md\n\nWe use this convention in order to make contributions to the project clear and predictable.\n\nCurrently, we support the following types: feat, fix, docs, style, refactor, perf, test, chore, revert.\n\nYou can use these types in your commit message in the following fashion:\n\n$ git commit -m \"<type>(<scope>): some commit message here\""
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier",
+      "git add"
+    ],
+    "*.{css,scss,md,json}": [
+      "prettier",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "jsxBracketSameLine": true,
+    "printWidth": 80,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "dependencies": {
+    "@spec/cli": "2.1.2",
+    "@spec/server": "2.1.2",
+    "apollo-cache-inmemory": "^1.1.9",
+    "apollo-client": "^2.2.5",
+    "apollo-link-http": "^1.3.3",
+    "express": "4.16.2",
+    "express-graphql": "^0.6.11",
+    "express-session": "^1.15.6",
+    "graphql": "^0.12.3",
+    "graphql-tag": "^2.8.0",
+    "passport": "^0.4.0",
+    "passport-facebook": "^2.1.1",
+    "passport-google-oauth20": "^1.0.0",
+    "prop-types": "15.6.0",
+    "react": "16.2.0",
+    "react-apollo": "^2.0.4",
+    "react-dom": "16.2.0",
+    "react-hot-loader": "3.1.3",
+    "react-router-dom": "^4.2.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "8.2.1",
+    "enzyme": "3.3.0",
+    "enzyme-to-json": "3.3.0",
+    "eslint": "4.16.0",
+    "eslint-config-spec": "2.1.0",
+    "eslint-plugin-import": "2.8.0",
+    "eslint-plugin-jsx-a11y": "6.0.3",
+    "eslint-plugin-react": "7.5.1",
+    "husky": "0.14.3",
+    "lint-staged": "6.0.1",
+    "prettier": "1.10.2",
+    "validate-commit-msg": "2.14.0"
+  }
+}
