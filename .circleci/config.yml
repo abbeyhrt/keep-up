@@ -21,6 +21,11 @@ jobs:
           command: |
             apk add --update unzip curl openssl ca-certificates git bash
             rm -rf /var/cache/apk/*
+            curl -L -o bluemix-cli.tgz https://clis.ng.bluemix.net/download/bluemix-cli/0.6.6/linux64
+            tar -xf bluemix-cli.tgz
+            chmod +x ./Bluemix_CLI/install_bluemix_cli
+            bash ./Bluemix_CLI/install_bluemix_cli
+            bx --help
       - checkout
       - run: ls -al
 
