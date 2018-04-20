@@ -23,6 +23,24 @@ jobs:
           name: Run CI Check
           command: yarn ci-check
 
+  build-ui:
+    requires:
+      - test-ui
+    docker:
+      - image: circleci/node:9
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: yarn
+      - run:
+          name: Run Build
+          command: cd ui && yarn build
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - ui/build/*
+
   deploy-graphql:
     docker:
       - image: kpup/deploy:v0.2
@@ -49,6 +67,27 @@ jobs:
           name: Deploy to CloudFoundry
           command: cd proxy && bx cf push
 
+  deploy-ui:
+    docker:
+      - image: kpup/deploy:v0.2
+    working_directory: /go/src/github.com/abbeyhrt/keep-up
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run:
+          name: Login to bx tool
+          command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
+      - run:
+          name: Copy build files
+          command: cp -R /tmp/workspace/build ui/build
+      - run:
+          name: Output
+          command: ls -al ui
+      # - run:
+          # name: Deploy to CloudFoundry
+          # command: cd ui && bx cf push
+
 workflows:
   version: 2
   graphql:
@@ -65,6 +104,14 @@ workflows:
   ui:
     jobs:
       - test-ui
+      - deploy-ui:
+          requires:
+            - test-ui
+            - build-ui
+          filters:
+            branches:
+              # TODO: change to `master`
+              only: ci/update-circle-ci
 
   proxy:
     jobs:
