@@ -1,7 +1,6 @@
 ---
 applications:
-  - name: keep-up-prod
-    host: keep-up-prod
+  - name: keep-up-ui
     memory: 128M
     disk_quota: 1024M
     instances: 1
@@ -10,5 +9,4 @@ applications:
       NODE_ENV: production
     command: npm start
     routes:
-      - route: keep-up.mybluemix.net
-      - route: keepup.company
+      - route: keep-up-ui.mybluemix.net
