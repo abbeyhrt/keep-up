@@ -15,15 +15,13 @@ jobs:
     docker:
       - image: circleci/node:9
     steps:
-      # - type: shell
-        # name: Initialize Working Directory
-        # pwd: /
-        # command: sudo mkdir -p /go/src/github.com/abbeyhrt/keep-up
       - checkout
-      - run: ls -al
-      # - run:
-          # name: Install dependencies
-          # command: yarn
+      - run:
+          name: Install dependencies
+          command: yarn
+      - run:
+          name: Run CI Check
+          command: yarn ci-check
 
   deploy-graphql:
     docker:
