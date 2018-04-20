@@ -32,7 +32,7 @@ workflows:
       - test-go
       - deploy-graphql:
           requires:
-            - test
+            - test-go
           filters:
             branches:
               # TODO: change to `master`
