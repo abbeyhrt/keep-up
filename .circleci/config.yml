@@ -1,23 +1,39 @@
 # Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  test-go:
     docker:
       - image: circleci/golang:1.10
-
     working_directory: /go/src/github.com/abbeyhrt/keep-up
-
     steps:
       - checkout
-
       - run:
           name: Run unit tests
-          command: go test -v ./graphql/...
+          command: go test -v ./...
+
+  deploy-graphql:
+    docker:
+      - image: alpine:latest
+    working_directory: /go/src/github.com/abbeyhrt/keep-up
+    steps:
+      - run:
+          name: Setup alpine dependencies
+          command: |
+            apk add --update unzip curl openssl ca-certificates git
+            libc6-compat bash
+            rm -rf /var/cache/apk/*
+      - checkout
+      - run: ls -al
 
 workflows:
   version: 2
   graphql:
     jobs:
-      - build
+      - test-go
+      - deploy-graphql:
+          requires:
+            - test
+          filters:
+            branches:
+              # TODO: change to `master`
+              only: ci/update-circle-ci
