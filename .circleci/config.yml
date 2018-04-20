@@ -12,6 +12,7 @@ jobs:
           command: go test -v ./...
 
   test-ui:
+    machine: true
     docker:
       - image: circleci/node:9
     working_directory: /go/src/github.com/abbeyhrt/keep-up
