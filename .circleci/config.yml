@@ -16,6 +16,9 @@ jobs:
       - image: circleci/node:9
     working_directory: /go/src/github.com/abbeyhrt/keep-up
     steps:
+      - type: shell
+        name: Initialize Working Directory
+        command: mkdir -p /go/src/github.com/abbeyhrt/keep-up
       - checkout
       - run:
           name: Install dependencies
