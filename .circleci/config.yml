@@ -14,8 +14,8 @@ jobs:
   test-ui:
     docker:
       - image: circleci/node:9
-    working_directory: /go/src/github.com/abbeyhrt/keep-up/ui
     steps:
+      - run: mkdir -p /go/src/github.com/abbeyhrt/keep-up
       - checkout
       - run:
           name: Install dependencies
