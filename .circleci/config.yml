@@ -14,8 +14,8 @@ jobs:
   test-ui:
     docker:
       - image: circleci/node:9
+    working_directory: /go/src/github.com/abbeyhrt/keep-up
     steps:
-      - run: mkdir -p /go/src/github.com/abbeyhrt/keep-up
       - checkout
       - run:
           name: Install dependencies
@@ -24,7 +24,7 @@ jobs:
   deploy-graphql:
     docker:
       - image: kpup/deploy:v0.2
-    working_directory: /go/src/github.com/abbeyhrt/keep-up/graphql
+    working_directory: /go/src/github.com/abbeyhrt/keep-up
     steps:
       - checkout
       - run:
@@ -32,12 +32,12 @@ jobs:
           command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
       - run:
           name: Deploy to CloudFoundry
-          command: bx cf push
+          command: cd graphql && bx cf push
 
   deploy-proxy:
     docker:
       - image: kpup/deploy:v0.2
-    working_directory: /go/src/github.com/abbeyhrt/keep-up/proxy
+    working_directory: /go/src/github.com/abbeyhrt/keep-up
     steps:
       - checkout
       - run:
@@ -45,7 +45,7 @@ jobs:
           command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
       - run:
           name: Deploy to CloudFoundry
-          command: bx cf push
+          command: cd proxy && bx cf push
 
 workflows:
   version: 2
