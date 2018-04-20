@@ -24,77 +24,18 @@ jobs:
           name: Deploy to CloudFoundry
           command: cd graphql && bx cf push
 
-  # deploy-graphql:
-    # docker:
-      # - image: alpine:latest
-    # working_directory: /go/src/github.com/abbeyhrt/keep-up
-    # steps:
-      # - run:
-          # name: Setup alpine dependencies
-          # command: |
-            # # Install dependencies needed for git, curl, etc.
-            # apk add --update unzip curl openssh openssl ca-certificates git bash
-            # rm -rf /var/cache/apk/*
-
-      # - run:
-          # name: Install bx cli
-          # command: |
-            # # Install the `bx` utilities into a tmp folder
-            # mkdir -p /tmp/bx
-            # curl -L -o /tmp/bx/cli https://clis.ng.bluemix.net/download/bluemix-cli/0.6.6/linux64
-            # tar -xf /tmp/bx/cli -C /tmp/bx
-
-            # # Make the install script executable and install
-            # chmod +x /tmp/bx/Bluemix_CLI/install_bluemix_cli
-            # bash /tmp/bx/Bluemix_CLI/install_bluemix_cli
-
-      # - run:
-          # name: Login to bx tool
-          # command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
-
-      # - checkout
-
-      # - run:
-          # name: Deploy to CloudFoundry
-          # command: |
-            # cd graphql
-            # bx cf push
-
-  # deploy-proxy:
-    # docker:
-      # - image: alpine:latest
-    # working_directory: /go/src/github.com/abbeyhrt/keep-up
-    # steps:
-      # - run:
-          # name: Setup alpine dependencies
-          # command: |
-            # # Install dependencies needed for git, curl, etc.
-            # apk add --update unzip curl openssh openssl ca-certificates git bash
-            # rm -rf /var/cache/apk/*
-
-      # - run:
-          # name: Install bx cli
-          # command: |
-            # # Install the `bx` utilities into a tmp folder
-            # mkdir -p /tmp/bx
-            # curl -L -o /tmp/bx/cli https://clis.ng.bluemix.net/download/bluemix-cli/0.6.6/linux64
-            # tar -xf /tmp/bx/cli -C /tmp/bx
-
-            # # Make the install script executable and install
-            # chmod +x /tmp/bx/Bluemix_CLI/install_bluemix_cli
-            # bash /tmp/bx/Bluemix_CLI/install_bluemix_cli
-
-      # - run:
-          # name: Login to bx tool
-          # command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
-
-      # - checkout
-
-      # - run:
-          # name: Deploy to CloudFoundry
-          # command: |
-            # cd proxy
-            # bx cf push
+  deploy-proxy:
+    docker:
+      - image: kpup/deploy:v0.2
+    working_directory: /go/src/github.com/abbeyhrt/keep-up
+    steps:
+      - checkout
+      - run:
+          name: Login to bx tool
+          command: bx login --apikey $CLOUD_API_KEY -o $CLOUD_ORG -s $CLOUD_SPACE -a https://api.ng.bluemix.net
+      - run:
+          name: Deploy to CloudFoundry
+          command: cd proxy && bx cf push
 
 workflows:
   version: 2
@@ -109,10 +50,10 @@ workflows:
               # TODO: change to `master`
               only: ci/update-circle-ci
 
-  # proxy:
-    # jobs:
-      # - deploy-proxy:
-          # filters:
-            # branches:
-              # # TODO: change to `master`
-              # only: ci/update-circle-ci
+  proxy:
+    jobs:
+      - deploy-proxy:
+          filters:
+            branches:
+              # TODO: change to `master`
+              only: ci/update-circle-ci
