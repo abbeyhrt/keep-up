@@ -7,13 +7,13 @@
 <!-- To run doctoc, just do `npx doctoc README.md` in this directory! -->
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
-- [Up & Running](#up--running)
-  - [Local Database setup](#local-database-setup)
-  - [Starting the server](#starting-the-server)
-  - [Local `.env` file](#local-env-file)
+* [Up & Running](#up--running)
+  * [Local Database setup](#local-database-setup)
+  * [Starting the server](#starting-the-server)
+  * [Local `.env` file](#local-env-file)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
