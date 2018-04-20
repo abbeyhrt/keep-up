@@ -1,6 +1,6 @@
 # keep-up
 
-[![Build Status](https://travis-ci.org/abbeyhrt/keep-up.svg?branch=master)](https://travis-ci.org/abbeyhrt/keep-up)
+[![CircleCI](https://circleci.com/gh/abbeyhrt/keep-up.svg?style=svg)](https://circleci.com/gh/abbeyhrt/keep-up)
 
 ## Table of Contents
 
