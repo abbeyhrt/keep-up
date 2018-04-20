@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"text/template"
 )
 
 type config struct{}
@@ -29,7 +30,7 @@ func main() {
 		fmt.Errorf("error creating file: %s", err)
 	}
 
-	err = tmpl.Execute(f, nil)
+	err = tmpl.Execute(f, cfg)
 	if err != nil {
 		fmt.Errorf("error executing with config: %s", err)
 	}
