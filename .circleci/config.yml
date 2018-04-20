@@ -11,18 +11,13 @@ jobs:
 
     steps:
       - checkout
-      # Include a test results and junit reporter for coverage
-      - run: go get github.com/jstemmer/go-junit-report
 
       - run:
           name: Run unit tests
-          command: go test -cover -v ./graphql/... 2>&1 | go-junit-report > report.xml
+          command: go test -v ./graphql/...
 
-      - store_test_results:
-          path: report.xml
-
-# workflows:
-  # version: 2
-
-  # graphql:
-    # - build
+workflows:
+  version: 2
+  graphql:
+    jobs:
+      - build
