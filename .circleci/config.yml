@@ -104,6 +104,7 @@ workflows:
   ui:
     jobs:
       - test-ui
+      - build-ui
       - deploy-ui:
           requires:
             - test-ui
