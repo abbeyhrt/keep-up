@@ -13,8 +13,8 @@ jobs:
 
       - run: go test -v ./graphql/...
 
-workflows:
-  version: 2
+# workflows:
+  # version: 2
 
-  graphql:
-    - build
+  # graphql:
+    # - build
