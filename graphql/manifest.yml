@@ -10,3 +10,6 @@ applications:
       GOPACKAGENAME: github.com/abbeyhrt/keep-up/graphql
       GO_INSTALL_PACKAGE_SPEC: ./cmd/pubapid
       DEPLOY_ENV: production
+    routes:
+      - keep-up-graphql.mybluemix.net
+      - graphql.keepup.company
