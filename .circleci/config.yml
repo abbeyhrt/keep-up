@@ -27,8 +27,13 @@ jobs:
             chmod +x /tmp/bx/Bluemix_CLI/install_bluemix_cli
             bash /tmp/bx/Bluemix_CLI/install_bluemix_cli
             bx --help
+
       - checkout
-      - run: ls -al
+      - run:
+          name: Login to bx tool
+          command: bx login -u $CLOUD_USER -p $CLOUD_TOKEN -o $CLOUD_ORG -s $CLOUD_SPACE
+
+      - run: bx cf o
 
 workflows:
   version: 2
