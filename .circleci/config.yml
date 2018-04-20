@@ -19,7 +19,7 @@ jobs:
       - run:
           name: Setup alpine dependencies
           command: |
-            apk add --update unzip curl openssl ca-certificates git bash
+            apk add --update unzip curl openssh openssl ca-certificates git bash
             rm -rf /var/cache/apk/*
             mkdir -p /tmp/bx
             curl -L -o /tmp/bx/cli https://clis.ng.bluemix.net/download/bluemix-cli/0.6.6/linux64
