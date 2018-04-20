@@ -9,13 +9,9 @@ jobs:
 
     working_directory: /go/src/github.com/abbeyhrt/keep-up
 
-    environment:
-      TEST_RESULTS: /tmp/test-results
-
     steps:
       - checkout
       # Include a test results and junit reporter for coverage
-      - run: mkdir -p $TEST_RESULTS
       - run: go get github.com/jstemmer/go-junit-report
 
       - run:
@@ -23,7 +19,7 @@ jobs:
           command: go test -cover -v ./graphql/... 2>&1 | go-junit-report > report.xml
 
       - store_test_results:
-          path: $TEST_RESULTS
+          path: report.xml
 
 # workflows:
   # version: 2
