@@ -7,11 +7,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/abbeyhrt/keep-up-graphql/internal/config"
 	"github.com/abbeyhrt/keep-up-graphql/internal/database"
 	"github.com/abbeyhrt/keep-up-graphql/internal/models"
 	"github.com/gorilla/mux"
+	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
@@ -25,6 +27,9 @@ type googleUserInfo struct {
 
 func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handler {
 	r := mux.NewRouter()
+	r.Use(RequestIDMiddleware)
+	r.Use(LoggingMiddleware)
+
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
@@ -58,6 +63,34 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	).Methods("GET")
 
 	return r
+}
+
+func RequestIDMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestId := r.Header.Get("X-Request-ID")
+		if requestId == "" {
+			r.Header.Set("X-Request-ID", uuid.NewV4().String())
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func LoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		next.ServeHTTP(w, r)
+
+		requestId := r.Header.Get("X-Request-ID")
+		elapsed := time.Now().Sub(start)
+		log.WithFields(log.Fields{
+			"request-id": requestId,
+			"method":     r.Method,
+			"url":        r.URL.String(),
+			"elapsed":    elapsed,
+		}).Info()
+	})
 }
 
 // HandleGoogleAuth handles the Google Authentication route
