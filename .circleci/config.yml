@@ -83,11 +83,8 @@ jobs:
           name: Copy build files
           command: cp -R workspace/build ui/build
       - run:
-          name: Output
-          command: ls -al ui
-      # - run:
-          # name: Deploy to CloudFoundry
-          # command: cd ui && bx cf push
+          name: Deploy to CloudFoundry
+          command: cd ui && bx cf push
 
 workflows:
   version: 2
