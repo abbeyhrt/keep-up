@@ -19,8 +19,7 @@ jobs:
       - run:
           name: Setup alpine dependencies
           command: |
-            apk add --update unzip curl openssl ca-certificates git
-            libc6-compat bash
+            apk add --update unzip curl openssl ca-certificates git bash
             rm -rf /var/cache/apk/*
       - checkout
       - run: ls -al
