@@ -36,10 +36,13 @@ jobs:
       - run:
           name: Run Build
           command: cd ui && yarn build
+      - run:
+          name: Make Workspace Directory
+          command: mkdir workspace
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: workspace
           paths:
-            - ui/build/*
+            - ui/build
 
   deploy-graphql:
     docker:
@@ -73,7 +76,7 @@ jobs:
     working_directory: /go/src/github.com/abbeyhrt/keep-up
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: workspace
       - checkout
       - run:
           name: Login to bx tool
