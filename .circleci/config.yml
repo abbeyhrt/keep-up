@@ -24,8 +24,6 @@ jobs:
           command: yarn ci-check
 
   build-ui:
-    requires:
-      - test-ui
     docker:
       - image: circleci/node:9
     steps:
@@ -38,11 +36,11 @@ jobs:
           command: cd ui && yarn build
       - run:
           name: Make Workspace Directory
-          command: mkdir workspace
+          command: mkdir workspace && ls -al
       - persist_to_workspace:
           root: workspace
           paths:
-            - ui/build
+            - ./ui/build
 
   deploy-graphql:
     docker:
@@ -107,7 +105,13 @@ workflows:
   ui:
     jobs:
       - test-ui
-      - build-ui
+      - build-ui:
+          requires:
+            - test-ui
+          filters:
+            branches:
+              # TODO: change to `master`
+              only: ci/update-circle-ci
       - deploy-ui:
           requires:
             - test-ui
