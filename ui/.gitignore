@@ -1,6 +1,3 @@
 # Build folders
 build
 lib
-
-# Coverage directory used by tools like istanbul
-coverage
