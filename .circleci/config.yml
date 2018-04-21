@@ -14,8 +14,7 @@ jobs:
       - run: ls -al && pwd
       - run:
           name: Install dependencies
-          command: |
-            cd graphql && dep ensure && cd ..
+          command: yarn
       - run:
           name: Run unit tests
           command: go test -v ./...
