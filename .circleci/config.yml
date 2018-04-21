@@ -96,8 +96,7 @@ workflows:
             - test-graphql
           filters:
             branches:
-              # TODO: change to `master`
-              only: ci/update-circle-ci
+              only: master
   ui:
     jobs:
       - test-ui
@@ -106,19 +105,16 @@ workflows:
             - test-ui
           filters:
             branches:
-              # TODO: change to `master`
-              only: ci/update-circle-ci
+              only: master
       - deploy-ui:
           requires:
             - build-ui
           filters:
             branches:
-              # TODO: change to `master`
-              only: ci/update-circle-ci
+              only: master
   proxy:
     jobs:
       - deploy-proxy:
           filters:
             branches:
-              # TODO: change to `master`
-              only: ci/update-circle-ci
+              only: master
