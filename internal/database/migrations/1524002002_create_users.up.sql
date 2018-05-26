@@ -1,3 +1,4 @@
+DROP TYPE IF EXISTS oauth_provider;
 CREATE TYPE oauth_provider AS ENUM ('facebook', 'google');
 
 CREATE TABLE users (

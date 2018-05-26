@@ -7,16 +7,20 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/abbeyhrt/keep-up-graphql/internal/config"
 	"github.com/abbeyhrt/keep-up-graphql/internal/database"
 	"github.com/abbeyhrt/keep-up-graphql/internal/models"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
+
+var sessionsMap = map[string]string{}
 
 type googleUserInfo struct {
 	ID      string `json:"id"`
@@ -29,22 +33,21 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	r := mux.NewRouter()
 	r.Use(RequestIDMiddleware)
 	r.Use(LoggingMiddleware)
-
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
+	r.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		//w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
-		<!DOCTYPE html>
-		<html lang="en">
-		<head>
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
 			<meta charset="UTF-8">
 			<title>Keep Up</title>
-		</head>
-		<body>
+			</head>
+			<body>
 			<h1>Keep Up</h1>
 			<a href="/auth/google">Login with Google</a>
-		</body>
-		</html>
-		`))
+			</body>
+			</html>
+			`))
 	})
 
 	r.HandleFunc(
@@ -62,13 +65,103 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 		),
 	).Methods("GET")
 
+	s := r.PathPrefix("/").Subrouter()
+
+	s.Use(SessionMiddleware(ctx, store))
+	s.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(`
+				<!DOCTYPE html>
+			<html lang="en">
+			<head>
+			<meta charset="UTF-8">
+			<title>Keep Up</title>
+			</head>
+			<body>
+			<h1>Keep Up</h1>
+			<a href="/auth/google">Login with Google</a>
+			</body>
+			</html>
+		`))
+	})
+	s.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		c, err := r.Cookie("sid")
+		if err != nil {
+			log.Error()
+			http.Error(w, "error finding cookie", http.StatusInternalServerError)
+		}
+		c.MaxAge = -1
+
+		http.SetCookie(w, c)
+
+		//w.Write([]byte("cleared cookie"))
+		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+
+		// if _, err := r.Cookie("sid"); err != nil {
+		// 	http.Redirect(w, r, "/", http.StatusSeeOther)
+		// 	return
+		// }
+	})
+
 	return r
 }
 
+//SessionMiddleware for creating a session on all routes, once the user is logged in.
+func SessionMiddleware(
+	ctx context.Context,
+	store database.DAL,
+) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			hashKey := []byte(os.Getenv("COOKIE_SECRET"))
+
+			blockKey := []byte(nil)
+
+			s := securecookie.New(hashKey, blockKey)
+
+			cookie, err := r.Cookie("sid")
+			if err != nil {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				return
+			}
+			value := make(map[string]string)
+			if err == nil {
+				err = s.Decode("sid", cookie.Value, &value)
+			}
+			if err != nil {
+				log.Error()
+				http.Error(w, "error decoding cookie value", http.StatusInternalServerError)
+				return
+			}
+
+			session, err := store.FindSessionByID(ctx, value["sessID"])
+			if err != nil {
+				log.Error()
+				http.Error(w, "error finding session", http.StatusInternalServerError)
+				return
+			}
+
+			user, err := store.FindUserByID(ctx, session.UserID)
+			if err != nil {
+				log.Error()
+				http.Error(w, "error finding session", http.StatusInternalServerError)
+				return
+			}
+
+			type contextUser struct{}
+			currentUser := contextUser{}
+			ctx = context.WithValue(ctx, currentUser, user)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+// RequestIDMiddleware middleware set the requestID
 func RequestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestId := r.Header.Get("X-Request-ID")
-		if requestId == "" {
+		requestID := r.Header.Get("X-Request-ID")
+		if requestID == "" {
 			r.Header.Set("X-Request-ID", uuid.NewV4().String())
 		}
 
@@ -82,10 +175,10 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 
-		requestId := r.Header.Get("X-Request-ID")
+		requestID := r.Header.Get("X-Request-ID")
 		elapsed := time.Now().Sub(start)
 		log.WithFields(log.Fields{
-			"request-id": requestId,
+			"request-id": requestID,
 			"method":     r.Method,
 			"url":        r.URL.String(),
 			"elapsed":    elapsed,
@@ -151,9 +244,10 @@ func HandleGoogleCallback(
 		}
 
 		user := models.User{
+			ID:         `json:"id"`,
 			Name:       info.Name,
 			Email:      info.Email,
-			AvatarUrl:  info.Picture,
+			AvatarURL:  info.Picture,
 			Provider:   "google",
 			ProviderID: info.ID,
 		}
@@ -164,12 +258,41 @@ func HandleGoogleCallback(
 			return
 		}
 
-		userJson, err := json.Marshal(user)
+		userJSON, err := json.Marshal(user)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		fmt.Fprintf(w, "Content: %s\n", userJson)
+		session, err := store.CreateSession(ctx, user.ID)
+		if err != nil {
+			http.Error(w, err.Error(),
+				http.StatusInternalServerError)
+			return
+		}
+
+		hashKey := []byte(os.Getenv("COOKIE_SECRET"))
+
+		blockKey := []byte(nil)
+
+		s := securecookie.New(hashKey, blockKey)
+
+		value := map[string]string{
+			"sessID": session.ID,
+		}
+
+		if encoded, err := s.Encode("sid", value); err == nil {
+			c := &http.Cookie{
+				Name:   "sid",
+				Value:  encoded,
+				Path:   "/",
+				MaxAge: 10000,
+			}
+
+			http.SetCookie(w, c)
+			r.AddCookie(c)
+		}
+
+		fmt.Fprintf(w, "Content: %s\n", userJSON)
 	}
 }
