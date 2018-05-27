@@ -20,6 +20,18 @@ func (s *MockStore) FindOrCreateUser(ctx context.Context, user *models.User) err
 	return errors.New("not implemented")
 }
 
+func (s *MockStore) FindUserByID(ctx context.Context, id string) (models.User, error) {
+	return models.User{}, errors.New("not implemented")
+}
+
+func (s *MockStore) CreateSession(ctx context.Context, userID string) (models.Session, error) {
+	return models.Session{}, errors.New("not implemented")
+}
+
+func (s *MockStore) FindSessionByID(ctx context.Context, id string) (models.Session, error) {
+	return models.Session{}, errors.New("not implemented")
+}
+
 func TestNewServer(t *testing.T) {
 	ctx := context.Background()
 	addr := "0.0.0.0:3000"

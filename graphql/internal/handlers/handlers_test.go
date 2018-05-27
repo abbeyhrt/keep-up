@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/database"
@@ -26,6 +27,7 @@ type fixture struct {
 		db   *sql.DB
 		mock sqlmock.Sqlmock
 	}
+	secret string
 }
 
 func newFixture(t *testing.T) *fixture {
@@ -64,6 +66,7 @@ func newFixture(t *testing.T) *fixture {
 			db,
 			mock,
 		},
+		secret: os.Getenv("COOKIE_SECRET"),
 	}
 }
 
@@ -78,7 +81,7 @@ func TestHandleGoogleAuth(t *testing.T) {
 	f := newFixture(t)
 	defer f.teardown()
 
-	handler := handlers.HandleGoogleAuth(f.ctx, f.oauth)
+	handler := handlers.HandleGoogleAuth(f.ctx, f.oauth, f.secret)
 	req := httptest.NewRequest("GET", "http://localhost:3000/auth/github", nil)
 	w := httptest.NewRecorder()
 
@@ -95,20 +98,31 @@ func TestHandleGoogleAuth(t *testing.T) {
 		t.Fatalf("expected a location header to exist in the response")
 	}
 
-	u, _ := url.Parse(f.oauth.Endpoint.AuthURL)
-	v := url.Values{}
+	u, err := url.Parse(location[0])
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	v.Set("access_type", "offline")
-	v.Set("client_id", "client_id")
-	v.Set("redirect_uri", f.oauth.RedirectURL)
-	v.Set("response_type", "code")
-	v.Set("scope", "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile")
-	v.Set("state", "state")
+	v := u.Query()
 
-	u.RawQuery = v.Encode()
+	if v.Get("access_type") != "offline" {
+		t.Fatal("expected access_type to be offline")
+	}
 
-	if u.String() != location[0] {
-		t.Fatalf("expected location header to be: %s, instead recieved: %s", u.String(), location[0])
+	if v.Get("client_id") != "client_id" {
+		t.Fatal("expected client id to match")
+	}
+
+	if v.Get("redirect_uri") != f.oauth.RedirectURL {
+		t.Fatal("expected OAuth RedirectURL to match")
+	}
+
+	if v.Get("response_type") != "code" {
+		t.Fatal("expected response_type to be code")
+	}
+
+	if v.Get("scope") != "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile" {
+		t.Fatal("expected scope to match")
 	}
 }
 
@@ -123,7 +137,7 @@ func it(should string, t *testing.T, callback func(t *testing.T, f *fixture)) {
 func TestHandleGoogleCallback(t *testing.T) {
 	it("should throw if no code provided", t, func(t *testing.T, f *fixture) {
 		userInfoURL, _ := url.Parse(f.user.URL)
-		handler := handlers.HandleGoogleCallback(f.ctx, f.oauth, *userInfoURL, f.store)
+		handler := handlers.HandleGoogleCallback(f.ctx, f.oauth, f.secret, *userInfoURL, f.store)
 		callbackURL, _ := url.Parse("http://localhost:3000/auth/github/callback")
 		req := httptest.NewRequest("GET", callbackURL.String(), nil)
 		w := httptest.NewRecorder()
@@ -150,6 +164,7 @@ func TestHandleGoogleCallback(t *testing.T) {
 			handler := handlers.HandleGoogleCallback(
 				f.ctx,
 				f.oauth,
+				f.secret,
 				*userInfoURL,
 				f.store,
 			)

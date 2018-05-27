@@ -212,7 +212,6 @@ func HandleGoogleAuth(ctx context.Context, cfg oauth2.Config, secret string) fun
 
 		url := cfg.AuthCodeURL(stateID, oauth2.AccessTypeOffline)
 		http.Redirect(w, r, url, http.StatusFound)
-
 	}
 }
 
