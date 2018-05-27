@@ -123,14 +123,14 @@ const (
 	`
 
 	sqlCreateSession = `
-	INSERT into sessions_table
-	(userid)
+	INSERT into sessions
+	(user_id)
 	VALUES ($1)
-	RETURNING id, userid, created_at
+	RETURNING id, user_id, created_at
 	`
 	sqlGetSessionByID = `
-	SELECT id, userid
-	FROM sessions_table
+	SELECT id, user_id
+	FROM sessions
 	WHERE id = $1`
 
 	sqlGetUserByProvider = `

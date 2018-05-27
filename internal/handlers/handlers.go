@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/abbeyhrt/keep-up-graphql/internal/config"
@@ -19,8 +18,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
-
-var sessionsMap = map[string]string{}
 
 type googleUserInfo struct {
 	ID      string `json:"id"`
@@ -34,7 +31,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	r.Use(RequestIDMiddleware)
 	r.Use(LoggingMiddleware)
 	r.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		//w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
 			<!DOCTYPE html>
 			<html lang="en">
@@ -52,7 +49,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 
 	r.HandleFunc(
 		"/auth/google",
-		HandleGoogleAuth(ctx, cfg.Google.OAuth),
+		HandleGoogleAuth(ctx, cfg.Google.OAuth, cfg.CookieSecret),
 	).Methods("GET")
 
 	r.HandleFunc(
@@ -60,6 +57,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 		HandleGoogleCallback(
 			ctx,
 			cfg.Google.OAuth,
+			cfg.CookieSecret,
 			cfg.Google.UserInfo,
 			store,
 		),
@@ -67,7 +65,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 
 	s := r.PathPrefix("/").Subrouter()
 
-	s.Use(SessionMiddleware(ctx, store))
+	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
 	s.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
@@ -94,56 +92,52 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 
 		http.SetCookie(w, c)
 
-		//w.Write([]byte("cleared cookie"))
 		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
-
-		// if _, err := r.Cookie("sid"); err != nil {
-		// 	http.Redirect(w, r, "/", http.StatusSeeOther)
-		// 	return
-		// }
 	})
-
 	return r
 }
+
+const sessionKey = "keepup.sid"
 
 //SessionMiddleware for creating a session on all routes, once the user is logged in.
 func SessionMiddleware(
 	ctx context.Context,
 	store database.DAL,
+	secret string,
 ) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			hashKey := []byte(os.Getenv("COOKIE_SECRET"))
+			hashKey := []byte(secret)
 
 			blockKey := []byte(nil)
 
 			s := securecookie.New(hashKey, blockKey)
 
-			cookie, err := r.Cookie("sid")
+			cookie, err := r.Cookie(sessionKey)
 			if err != nil {
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 				return
 			}
 			value := make(map[string]string)
 			if err == nil {
-				err = s.Decode("sid", cookie.Value, &value)
+				err = s.Decode(sessionKey, cookie.Value, &value)
 			}
 			if err != nil {
-				log.Error()
+				log.Error(err)
 				http.Error(w, "error decoding cookie value", http.StatusInternalServerError)
 				return
 			}
 
 			session, err := store.FindSessionByID(ctx, value["sessID"])
 			if err != nil {
-				log.Error()
+				log.Error(err)
 				http.Error(w, "error finding session", http.StatusInternalServerError)
 				return
 			}
 
 			user, err := store.FindUserByID(ctx, session.UserID)
 			if err != nil {
-				log.Error()
+				log.Error(err)
 				http.Error(w, "error finding session", http.StatusInternalServerError)
 				return
 			}
@@ -187,12 +181,38 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 }
 
 // HandleGoogleAuth handles the Google Authentication route
-func HandleGoogleAuth(ctx context.Context, cfg oauth2.Config) func(w http.ResponseWriter, r *http.Request) {
+func HandleGoogleAuth(ctx context.Context, cfg oauth2.Config, secret string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: generate random state and save in session
-		state := "state"
-		url := cfg.AuthCodeURL(state, oauth2.AccessTypeOffline)
+		hashKey := []byte(secret)
+
+		blockKey := []byte(nil)
+
+		s := securecookie.New(hashKey, blockKey)
+
+		stateID := uuid.NewV4().String()
+
+		state := map[string]string{
+			"stateValue": stateID,
+		}
+
+		if encoded, err := s.Encode("state", state); err == nil {
+			c := &http.Cookie{
+				Name:   "state",
+				Value:  encoded,
+				Path:   "/",
+				MaxAge: 10000,
+			}
+			if err != nil {
+				log.Error(err)
+				http.Error(w, "error making cookie", http.StatusInternalServerError)
+				return
+			}
+			http.SetCookie(w, c)
+		}
+
+		url := cfg.AuthCodeURL(stateID, oauth2.AccessTypeOffline)
 		http.Redirect(w, r, url, http.StatusFound)
+
 	}
 }
 
@@ -200,13 +220,38 @@ func HandleGoogleAuth(ctx context.Context, cfg oauth2.Config) func(w http.Respon
 func HandleGoogleCallback(
 	ctx context.Context,
 	cfg oauth2.Config,
+	secret string,
 	userInfo url.URL,
 	store database.DAL,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: validate state query param matches stored session state value
-		code := r.FormValue("code")
+		queryState := r.FormValue("state")
+		if queryState == "" {
+			http.Error(w, "no state recieved", http.StatusInternalServerError)
+			return
+		}
 
+		hashKey := []byte(secret)
+
+		blockKey := []byte(nil)
+
+		s := securecookie.New(hashKey, blockKey)
+
+		value := make(map[string]string)
+		if cookie, err := r.Cookie("state"); err == nil {
+			err = s.Decode("state", cookie.Value, &value)
+		} else {
+			log.Error(err)
+			http.Error(w, "error decoding cookie value", http.StatusInternalServerError)
+			return
+		}
+
+		if value["stateValue"] != queryState {
+			http.Error(w, "stored state does not equal query state", http.StatusInternalServerError)
+			return
+		}
+
+		code := r.FormValue("code")
 		if code == "" {
 			http.Error(w, "no code received", http.StatusInternalServerError)
 			return
@@ -271,28 +316,23 @@ func HandleGoogleCallback(
 			return
 		}
 
-		hashKey := []byte(os.Getenv("COOKIE_SECRET"))
-
-		blockKey := []byte(nil)
-
-		s := securecookie.New(hashKey, blockKey)
-
-		value := map[string]string{
+		cookieValue := map[string]string{
 			"sessID": session.ID,
 		}
 
-		if encoded, err := s.Encode("sid", value); err == nil {
+		if encoded, err := s.Encode(sessionKey, cookieValue); err == nil {
 			c := &http.Cookie{
-				Name:   "sid",
+				Name:   sessionKey,
 				Value:  encoded,
 				Path:   "/",
 				MaxAge: 10000,
 			}
-
 			http.SetCookie(w, c)
 			r.AddCookie(c)
+
 		}
 
 		fmt.Fprintf(w, "Content: %s\n", userJSON)
+
 	}
 }
