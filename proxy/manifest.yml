@@ -1,0 +1,9 @@
+---
+applications:
+  - name: keep-up-proxy
+    buildpack: https://github.com/cloudfoundry/nginx-buildpack.git
+    memory: 64M
+    disk_quota: 64M
+    routes:
+      - route: keep-up.mybluemix.net
+      - route: keepup.company

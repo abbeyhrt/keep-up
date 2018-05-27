@@ -11,6 +11,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: keep_up_dev
+  graphql:
+    build:
+      context: ./graphql
+    command: ["/wait-for-it.sh", "postgres:5432", "--", "pubapid"]
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env.dev
 volumes:
   local-db-volume:
     driver: local

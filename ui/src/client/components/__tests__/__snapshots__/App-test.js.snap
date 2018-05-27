@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App should render 1`] = `
+<App>
+  <BrowserRouter>
+    <Router
+      history={
+        Object {
+          "action": "POP",
+          "block": [Function],
+          "createHref": [Function],
+          "go": [Function],
+          "goBack": [Function],
+          "goForward": [Function],
+          "length": 1,
+          "listen": [Function],
+          "location": Object {
+            "hash": "",
+            "pathname": "blank",
+            "search": "",
+            "state": undefined,
+          },
+          "push": [Function],
+          "replace": [Function],
+        }
+      }
+    >
+      <div
+        className="content"
+      >
+        <h1>
+          Keep Up
+        </h1>
+        <hr />
+        <div
+          className="nav-menu"
+        >
+          <Route
+            component={[Function]}
+            path="/home"
+          />
+          <Route
+            component={[Function]}
+            path="/home/edit"
+          />
+          <Route
+            component={[Function]}
+            path="/login"
+          />
+          <Route
+            component={[Function]}
+            path="/sign-up"
+          />
+          <Route
+            component={[Function]}
+            exact={true}
+            path="/rooms"
+          />
+          <Route
+            component={[Function]}
+            exact={true}
+            path="/rooms/:room"
+          />
+          <Route
+            component={[Function]}
+            path="rooms/:room/edit"
+          />
+          <Route
+            component={[Function]}
+            exact={true}
+            path="/tasks"
+          />
+          <Route
+            component={[Function]}
+            exact={true}
+            path="/tasks/:task"
+          />
+          <Route
+            component={[Function]}
+            path="/whoops"
+          />
+          <Route
+            component={[Function]}
+            path="/server-error"
+          />
+          <Route
+            component={[Function]}
+            path="/onboarding/"
+          />
+          <Route
+            component={[Function]}
+            path="/onboarding/:step"
+          />
+        </div>
+      </div>
+    </Router>
+  </BrowserRouter>
+</App>
+`;
