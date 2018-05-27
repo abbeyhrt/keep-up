@@ -20,6 +20,12 @@
   version = "v1.6.1"
 
 [[projects]]
+  name = "github.com/gorilla/securecookie"
+  packages = ["."]
+  revision = "e59506cc896acb7f7bf732d4fdf5e25f7ccd8983"
+  version = "v1.1.1"
+
+[[projects]]
   branch = "master"
   name = "github.com/lib/pq"
   packages = [
@@ -96,6 +102,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5ce94badeb40dce2cb3592532fdf98e8ccd9bc163979994df29c6cb664ca5794"
+  inputs-digest = "88a7ee1040e312d327ccbb4ea37d0c48fdf8ddf9e43796d0b0225b99706062e0"
   solver-name = "gps-cdcl"
   solver-version = 1

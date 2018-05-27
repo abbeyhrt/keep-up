@@ -13,6 +13,7 @@ import (
 	"github.com/abbeyhrt/keep-up/graphql/internal/database"
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -29,27 +30,26 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	r := mux.NewRouter()
 	r.Use(RequestIDMiddleware)
 	r.Use(LoggingMiddleware)
-
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
-		<!DOCTYPE html>
-		<html lang="en">
-		<head>
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
 			<meta charset="UTF-8">
 			<title>Keep Up</title>
-		</head>
-		<body>
+			</head>
+			<body>
 			<h1>Keep Up</h1>
 			<a href="/auth/google">Login with Google</a>
-		</body>
-		</html>
-		`))
+			</body>
+			</html>
+			`))
 	})
 
 	r.HandleFunc(
 		"/auth/google",
-		HandleGoogleAuth(ctx, cfg.Google.OAuth),
+		HandleGoogleAuth(ctx, cfg.Google.OAuth, cfg.CookieSecret),
 	).Methods("GET")
 
 	r.HandleFunc(
@@ -57,18 +57,105 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 		HandleGoogleCallback(
 			ctx,
 			cfg.Google.OAuth,
+			cfg.CookieSecret,
 			cfg.Google.UserInfo,
 			store,
 		),
 	).Methods("GET")
 
+	s := r.PathPrefix("/").Subrouter()
+
+	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
+	s.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(`
+				<!DOCTYPE html>
+			<html lang="en">
+			<head>
+			<meta charset="UTF-8">
+			<title>Keep Up</title>
+			</head>
+			<body>
+			<h1>Keep Up</h1>
+			<a href="/auth/google">Login with Google</a>
+			</body>
+			</html>
+		`))
+	})
+	s.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		c, err := r.Cookie("sid")
+		if err != nil {
+			log.Error()
+			http.Error(w, "error finding cookie", http.StatusInternalServerError)
+		}
+		c.MaxAge = -1
+
+		http.SetCookie(w, c)
+
+		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+	})
 	return r
 }
 
+const sessionKey = "keepup.sid"
+
+//SessionMiddleware for creating a session on all routes, once the user is logged in.
+func SessionMiddleware(
+	ctx context.Context,
+	store database.DAL,
+	secret string,
+) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			hashKey := []byte(secret)
+
+			blockKey := []byte(nil)
+
+			s := securecookie.New(hashKey, blockKey)
+
+			cookie, err := r.Cookie(sessionKey)
+			if err != nil {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				return
+			}
+			value := make(map[string]string)
+			if err == nil {
+				err = s.Decode(sessionKey, cookie.Value, &value)
+			}
+			if err != nil {
+				log.Error(err)
+				http.Error(w, "error decoding cookie value", http.StatusInternalServerError)
+				return
+			}
+
+			session, err := store.FindSessionByID(ctx, value["sessID"])
+			if err != nil {
+				log.Error(err)
+				http.Error(w, "error finding session", http.StatusInternalServerError)
+				return
+			}
+
+			user, err := store.FindUserByID(ctx, session.UserID)
+			if err != nil {
+				log.Error(err)
+				http.Error(w, "error finding session", http.StatusInternalServerError)
+				return
+			}
+
+			type contextUser struct{}
+			currentUser := contextUser{}
+			ctx = context.WithValue(ctx, currentUser, user)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+// RequestIDMiddleware middleware set the requestID
 func RequestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestId := r.Header.Get("X-Request-ID")
-		if requestId == "" {
+		requestID := r.Header.Get("X-Request-ID")
+		if requestID == "" {
 			r.Header.Set("X-Request-ID", uuid.NewV4().String())
 		}
 
@@ -82,10 +169,10 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 
-		requestId := r.Header.Get("X-Request-ID")
+		requestID := r.Header.Get("X-Request-ID")
 		elapsed := time.Now().Sub(start)
 		log.WithFields(log.Fields{
-			"request-id": requestId,
+			"request-id": requestID,
 			"method":     r.Method,
 			"url":        r.URL.String(),
 			"elapsed":    elapsed,
@@ -94,11 +181,36 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 }
 
 // HandleGoogleAuth handles the Google Authentication route
-func HandleGoogleAuth(ctx context.Context, cfg oauth2.Config) func(w http.ResponseWriter, r *http.Request) {
+func HandleGoogleAuth(ctx context.Context, cfg oauth2.Config, secret string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: generate random state and save in session
-		state := "state"
-		url := cfg.AuthCodeURL(state, oauth2.AccessTypeOffline)
+		hashKey := []byte(secret)
+
+		blockKey := []byte(nil)
+
+		s := securecookie.New(hashKey, blockKey)
+
+		stateID := uuid.NewV4().String()
+
+		state := map[string]string{
+			"stateValue": stateID,
+		}
+
+		if encoded, err := s.Encode("state", state); err == nil {
+			c := &http.Cookie{
+				Name:   "state",
+				Value:  encoded,
+				Path:   "/",
+				MaxAge: 10000,
+			}
+			if err != nil {
+				log.Error(err)
+				http.Error(w, "error making cookie", http.StatusInternalServerError)
+				return
+			}
+			http.SetCookie(w, c)
+		}
+
+		url := cfg.AuthCodeURL(stateID, oauth2.AccessTypeOffline)
 		http.Redirect(w, r, url, http.StatusFound)
 	}
 }
@@ -107,13 +219,38 @@ func HandleGoogleAuth(ctx context.Context, cfg oauth2.Config) func(w http.Respon
 func HandleGoogleCallback(
 	ctx context.Context,
 	cfg oauth2.Config,
+	secret string,
 	userInfo url.URL,
 	store database.DAL,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: validate state query param matches stored session state value
-		code := r.FormValue("code")
+		queryState := r.FormValue("state")
+		if queryState == "" {
+			http.Error(w, "no state recieved", http.StatusInternalServerError)
+			return
+		}
 
+		hashKey := []byte(secret)
+
+		blockKey := []byte(nil)
+
+		s := securecookie.New(hashKey, blockKey)
+
+		value := make(map[string]string)
+		if cookie, err := r.Cookie("state"); err == nil {
+			err = s.Decode("state", cookie.Value, &value)
+		} else {
+			log.Error(err)
+			http.Error(w, "error decoding cookie value", http.StatusInternalServerError)
+			return
+		}
+
+		if value["stateValue"] != queryState {
+			http.Error(w, "stored state does not equal query state", http.StatusInternalServerError)
+			return
+		}
+
+		code := r.FormValue("code")
 		if code == "" {
 			http.Error(w, "no code received", http.StatusInternalServerError)
 			return
@@ -151,9 +288,10 @@ func HandleGoogleCallback(
 		}
 
 		user := models.User{
+			ID:         `json:"id"`,
 			Name:       info.Name,
 			Email:      info.Email,
-			AvatarUrl:  info.Picture,
+			AvatarURL:  info.Picture,
 			Provider:   "google",
 			ProviderID: info.ID,
 		}
@@ -164,12 +302,36 @@ func HandleGoogleCallback(
 			return
 		}
 
-		userJson, err := json.Marshal(user)
+		userJSON, err := json.Marshal(user)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		fmt.Fprintf(w, "Content: %s\n", userJson)
+		session, err := store.CreateSession(ctx, user.ID)
+		if err != nil {
+			http.Error(w, err.Error(),
+				http.StatusInternalServerError)
+			return
+		}
+
+		cookieValue := map[string]string{
+			"sessID": session.ID,
+		}
+
+		if encoded, err := s.Encode(sessionKey, cookieValue); err == nil {
+			c := &http.Cookie{
+				Name:   sessionKey,
+				Value:  encoded,
+				Path:   "/",
+				MaxAge: 10000,
+			}
+			http.SetCookie(w, c)
+			r.AddCookie(c)
+
+		}
+
+		fmt.Fprintf(w, "Content: %s\n", userJSON)
+
 	}
 }

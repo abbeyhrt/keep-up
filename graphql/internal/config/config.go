@@ -15,12 +15,13 @@ type Provider struct {
 
 // Config struct for creating server and database connection
 type Config struct {
-	Host     string
-	Port     string
-	Addr     string
-	Env      string
-	Postgres url.URL
-	Google   Provider
+	Host         string
+	Port         string
+	Addr         string
+	Env          string
+	Postgres     url.URL
+	Google       Provider
+	CookieSecret string
 }
 
 // New function to create a new instance of a server or database
@@ -81,6 +82,8 @@ func New() (Config, error) {
 		return Config{}, err
 	}
 
+	cookie := os.Getenv("COOKIE_SECRET")
+
 	return Config{
 		Host:     host,
 		Port:     port,
@@ -91,5 +94,6 @@ func New() (Config, error) {
 			OAuth:    oauth,
 			UserInfo: *userinfo,
 		},
+		CookieSecret: cookie,
 	}, nil
 }
