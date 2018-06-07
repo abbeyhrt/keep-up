@@ -331,7 +331,8 @@ func HandleGoogleCallback(
 
 		}
 
-		fmt.Fprintf(w, "Content: %s\n", userJSON)
+		http.Redirect(w, r, "https://localhost:3001", http.StatusSeeOther)
+		fmt.Printf("Content: %s\n", userJSON)
 
 	}
 }
