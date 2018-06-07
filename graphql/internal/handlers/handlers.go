@@ -83,7 +83,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 		`))
 	})
 	s.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
-		c, err := r.Cookie("sid")
+		c, err := r.Cookie(sessionKey)
 		if err != nil {
 			log.Error()
 			http.Error(w, "error finding cookie", http.StatusInternalServerError)
