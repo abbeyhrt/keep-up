@@ -4,8 +4,18 @@ const path = require('path');
 const express = require('express');
 const applyMiddleware = require('@spec/server/tools/applyMiddleware');
 const getBuildContext = require('@spec/server/tools/getBuildContext');
+const proxy = require('express-http-proxy');
+const { PROXY_URL } = require('config');
 
 const middleware = [
+  server => {
+    server.get('/auth/google', proxy(PROXY_URL));
+    server.get('/auth/google/callback', proxy(PROXY_URL));
+    server.post('/graphql', proxy(PROXY_URL));
+    server.get('/logout', proxy(PROXY_URL));
+
+    return server;
+  },
   // Development Middleware for handling client-side related development
   require('@spec/server/middleware/development'),
 
