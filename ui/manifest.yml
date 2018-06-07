@@ -9,4 +9,4 @@ applications:
       NODE_ENV: production
     command: npm start
     routes:
-      - route: keep-up-ui.mybluemix.net
+      - route: keepup.company
