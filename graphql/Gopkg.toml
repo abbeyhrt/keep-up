@@ -49,6 +49,6 @@
   name = "gopkg.in/DATA-DOG/go-sqlmock.v1"
   version = "1.3.0"
 
-[[override]]
-  branch = "feat/add-https"
-  name = "github.com/graphql-gophers/graphql-go"
+[[constraint]]
+  branch = "master"
+  name = "github.com/graph-gophers/graphql-go"
