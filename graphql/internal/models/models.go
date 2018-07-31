@@ -19,3 +19,12 @@ type Session struct {
 	UserID    string
 	CreatedAt time.Time
 }
+
+type Task struct {
+	ID           string
+	UserID       string
+	Title        string
+	Instructions string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}

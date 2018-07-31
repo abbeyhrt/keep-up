@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
+	"github.com/opentracing/opentracing-go/log"
 )
 
 func NewStoreFromClient(db *sql.DB) *SQLStore {
@@ -15,6 +16,8 @@ func NewStoreFromClient(db *sql.DB) *SQLStore {
 type SQLStore struct {
 	db *sql.DB
 }
+
+//Session functions for creating and finding a session
 
 func (s *SQLStore) CreateSession(ctx context.Context, userID string) (models.Session, error) {
 	session := models.Session{}
@@ -40,6 +43,8 @@ func (s *SQLStore) FindSessionByID(ctx context.Context, id string) (models.Sessi
 	)
 	return session, err
 }
+
+// Functions for finding and creating users
 
 func (s *SQLStore) FindUserByID(ctx context.Context, id string) (models.User, error) {
 	u := models.User{}
@@ -114,6 +119,61 @@ func (s *SQLStore) CreateUser(
 	return user, nil
 }
 
+//functions for finding or creating tasks
+
+func (s *SQLStore) CreateTask(ctx context.Context, t models.Task) (models.Task, error) {
+	err := s.db.QueryRowContext(
+		ctx,
+		sqlCreateTask,
+		t.UserID,
+		t.Title,
+		t.Instructions,
+	).Scan(
+		&t.ID,
+		&t.UserID,
+		&t.Title,
+		&t.Instructions,
+		&t.CreatedAt,
+		&t.UpdatedAt,
+	)
+	if err != nil {
+		return t, fmt.Errorf("error creating tasks: %v", err)
+	}
+	return t, nil
+}
+
+func (s *SQLStore) FindTasksByUserID(ctx context.Context, id string) ([]models.Task, error) {
+	rows, err := s.db.QueryContext(ctx, sqlFindTasksByUserID, id)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []models.Task
+
+	for rows.Next() {
+		t := models.Task{}
+
+		err := rows.Scan(
+			&t.ID,
+			&t.UserID,
+			&t.Title,
+			&t.Instructions,
+			&t.CreatedAt,
+			&t.UpdatedAt,
+		)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		tasks = append(tasks, t)
+	}
+
+	return tasks, nil
+}
+
 const (
 	sqlCreateUser = `
 	INSERT into users
@@ -144,4 +204,16 @@ const (
 	FROM users
 	WHERE id = $1
 	`
+
+	sqlCreateTask = `
+	INSERT into tasks
+	(user_id, title, instructions)
+	VALUES ($1, $2, $3)
+	RETURNING id, user_id, title, instructions, created_at, updated_at
+	`
+
+	sqlFindTasksByUserID = `
+	SELECT id, user_id, title, instructions, created_at, updated_at
+	FROM tasks
+	WHERE user_id = $1`
 )

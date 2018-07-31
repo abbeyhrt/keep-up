@@ -1,12 +1,25 @@
 import React from 'react';
 
-const TaskForm = () => (
-  <form action="edit" className="edit-task-form">
-    <input type="text" className="edit-task-input" />
-    <input type="text" className="edit-task-input" />
-    <input type="text" className="edit-task-input" />
-    <button className="edit-task-button">Submit</button>
-  </form>
-);
-
-export default TaskForm;
+export default class TaskForm extends React.Component {
+  render() {
+    return (
+      <div>
+        <form onSubmit={this.handleSubmit}>
+          <div>
+            <label htmlFor="title" name="title">
+              Title
+            </label>
+            <input type="text" htmlFor="title" name="title" />
+          </div>
+          <div>
+            <label htmlFor="instructions" name="task-instructions">
+              Instructions
+            </label>
+            <textarea htmlFor="title" name="instructions" />
+          </div>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    );
+  }
+}

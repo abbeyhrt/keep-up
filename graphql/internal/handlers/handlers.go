@@ -12,9 +12,10 @@ import (
 	"github.com/abbeyhrt/keep-up/graphql/internal/config"
 	"github.com/abbeyhrt/keep-up/graphql/internal/database"
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
+	"github.com/abbeyhrt/keep-up/graphql/internal/session"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
-	// relay "github.com/graph-gophers/graphql-go/relay"
+
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -64,11 +65,11 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 		),
 	).Methods("GET")
 
-	r.Handle("/graphiql", GraphiqlHandler())
-
 	s := r.PathPrefix("/").Subrouter()
 
 	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
+	s.Handle("/graphql", GraphQLHandler(store))
+	s.Handle("/graphiql", GraphiqlHandler())
 	s.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
@@ -85,10 +86,38 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 			</html>
 		`))
 	})
+	s.HandleFunc("/task", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(`
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+			<meta charset="UTF-8">
+			<title>Keep Up</title>
+			</head>
+			<body>
+			<h1>Keep Up</h1>
+				<form action="/create-task" method="POST">
+					<div>
+						<label for="title" name="title">Title</label>
+						<input type="text"name="title"></input>
+					</div>
+					<div>
+						<label for="instructions" name="task-instructions">Instructions</label>
+						<textarea name="instructions"></textarea>
+					</div>
+					<button type="submit">Submit</button>
+				</form>
+			</body>
+			</html>
+			`))
+	})
+
+	s.HandleFunc("/graphql/create-task", TaskHandler(store))
 	s.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
 		c, err := r.Cookie(sessionKey)
 		if err != nil {
-			log.Error()
+			log.Error(err)
 			http.Error(w, "error finding cookie", http.StatusInternalServerError)
 		}
 		c.MaxAge = -1
@@ -103,7 +132,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 
 const sessionKey = "keepup.sid"
 
-//SessionMiddleware for creating a session on all routes, once the user is logged in.
+// SessionMiddleware for creating a session on all routes, once the user is logged in.
 func SessionMiddleware(
 	ctx context.Context,
 	store database.DAL,
@@ -115,7 +144,7 @@ func SessionMiddleware(
 
 			blockKey := []byte(nil)
 
-			s := securecookie.New(hashKey, blockKey)
+			sc := securecookie.New(hashKey, blockKey)
 
 			cookie, err := r.Cookie(sessionKey)
 			if err != nil {
@@ -124,7 +153,7 @@ func SessionMiddleware(
 			}
 			value := make(map[string]string)
 			if err == nil {
-				err = s.Decode(sessionKey, cookie.Value, &value)
+				err = sc.Decode(sessionKey, cookie.Value, &value)
 			}
 			if err != nil {
 				log.Error(err)
@@ -132,23 +161,21 @@ func SessionMiddleware(
 				return
 			}
 
-			session, err := store.FindSessionByID(ctx, value["sessID"])
+			s, err := store.FindSessionByID(ctx, value["sessID"])
 			if err != nil {
 				log.Error(err)
 				http.Error(w, "error finding session", http.StatusInternalServerError)
 				return
 			}
 
-			user, err := store.FindUserByID(ctx, session.UserID)
+			user, err := store.FindUserByID(ctx, s.UserID)
 			if err != nil {
 				log.Error(err)
 				http.Error(w, "error finding session", http.StatusInternalServerError)
 				return
 			}
 
-			type contextUser struct{}
-			currentUser := contextUser{}
-			ctx = context.WithValue(ctx, currentUser, user)
+			ctx = session.NewContext(ctx, &session.Session{User: user})
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -217,6 +244,39 @@ func HandleGoogleAuth(ctx context.Context, cfg oauth2.Config, secret string) fun
 
 		url := cfg.AuthCodeURL(stateID, oauth2.AccessTypeOffline)
 		http.Redirect(w, r, url, http.StatusFound)
+	}
+}
+
+func TaskHandler(store database.DAL) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		err := r.ParseForm()
+		if err != nil {
+			log.Error(err)
+		}
+
+		s, ok := session.FromContext(ctx)
+		if !ok {
+			fmt.Println("it's not okay")
+			return
+		}
+
+		fmt.Println(s.User.ID)
+
+		task := models.Task{
+			UserID:       s.User.ID,
+			Title:        r.PostFormValue("title"),
+			Instructions: r.PostFormValue("instructions"),
+		}
+
+		task, err = store.CreateTask(ctx, task)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		fmt.Println(task)
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 

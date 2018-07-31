@@ -15,6 +15,8 @@ type DAL interface {
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	FindOrCreateUser(ctx context.Context, user *models.User) error
 	FindUserByID(ctx context.Context, id string) (models.User, error)
+	CreateTask(ctx context.Context, t models.Task) (models.Task, error)
+	FindTasksByUserID(ctx context.Context, id string) ([]models.Task, error)
 }
 
 func New(ctx context.Context, connStr string) (DAL, error) {

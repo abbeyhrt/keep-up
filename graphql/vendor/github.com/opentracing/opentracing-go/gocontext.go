@@ -28,7 +28,7 @@ func SpanFromContext(ctx context.Context) Span {
 
 // StartSpanFromContext starts and returns a Span with `operationName`, using
 // any Span found within `ctx` as a ChildOfRef. If no such parent could be
-// found, StartSpanFromContext creates a root (parentless) Span.
+// found, StartSpanFromContext creates a  (parentless) Span.
 //
 // The second return value is a context.Context object built around the
 // returned Span.

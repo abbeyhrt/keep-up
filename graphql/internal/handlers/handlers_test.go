@@ -240,3 +240,22 @@ func getMockUserService(shouldFail bool) *httptest.Server {
 	)
 	return userStub
 }
+
+// func TasksHandler(store database.DAL) func(w http.ResponseWriter, r *http.Request) {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		ctx := r.Context()
+// 		s, ok := session.FromContext(ctx)
+// 		if !ok {
+// 			fmt.Println("it's not okay")
+// 			return
+// 		}
+// 		userID := s.User.ID
+
+// 		tasks, err := store.FindTasksByUserID(ctx, userID)
+// 		if err != nil {
+// 			log.Error(err)
+// 			return
+// 		}
+// 		fmt.Println(tasks)
+// 	}
+// }

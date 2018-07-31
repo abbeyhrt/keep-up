@@ -4,22 +4,18 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/abbeyhrt/keep-up/graphql/internal/database"
+	"github.com/abbeyhrt/keep-up/graphql/internal/resolver"
+	"github.com/abbeyhrt/keep-up/graphql/internal/schema"
 	graphql "github.com/graph-gophers/graphql-go"
+	"github.com/graph-gophers/graphql-go/relay"
 )
 
-type Graphql struct {
-	Schema *graphql.Schema
+// GraphQLHandler will be the handler for all graphql queries
+func GraphQLHandler(store database.DAL) *relay.Handler {
+	schema := graphql.MustParseSchema(schema.Schema, resolver.New(store))
+	return &relay.Handler{Schema: schema}
 }
-
-func (h GraphQL) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-}
-
-// //GraphQLHandler will be the handler for all graphql queries
-// func GraphQLHandler(db database.DAL) *relay.Handler {
-// 	schema := graphql.MustParseSchema(schema.Schema, resolver.New(db))
-// 	return &relay.Handler{Schema: schema}
-// }
 
 func GraphiqlHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
