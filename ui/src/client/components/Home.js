@@ -1,8 +1,27 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { Query } from 'react-apollo';
+import gql from 'graphql-tag';
 
-class Home extends Component {
-  render() {
-    return <div>hello</div>;
-  }
-}
+const Home = () => (
+  // <div>HOme</div>
+  <Query
+    query={gql`
+      {
+        viewer {
+          name
+          email
+        }
+      }
+    `}>
+    {({ loading, error, data }) => {
+      if (loading) return <p>Loading...</p>;
+      if (error) {
+        console.log(error);
+        return <p>Error</p>;
+      }
+      return data.viewer.name;
+    }}
+  </Query>
+);
+
 export default Home;

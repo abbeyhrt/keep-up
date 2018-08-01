@@ -27,12 +27,43 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/graph-gophers/graphql-go"
+  packages = [
+    ".",
+    "errors",
+    "internal/common",
+    "internal/exec",
+    "internal/exec/packer",
+    "internal/exec/resolvable",
+    "internal/exec/selected",
+    "internal/query",
+    "internal/schema",
+    "internal/validation",
+    "introspection",
+    "log",
+    "relay",
+    "trace"
+  ]
+  revision = "bb9738501bd42a6536227b96068349b814379d6e"
+
+[[projects]]
+  branch = "master"
   name = "github.com/lib/pq"
   packages = [
     ".",
     "oid"
   ]
   revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
+
+[[projects]]
+  name = "github.com/opentracing/opentracing-go"
+  packages = [
+    ".",
+    "ext",
+    "log"
+  ]
+  revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
@@ -102,6 +133,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "88a7ee1040e312d327ccbb4ea37d0c48fdf8ddf9e43796d0b0225b99706062e0"
+  inputs-digest = "452964d14b3b7a03cfbbd0d18b24b4040f9de572572f54f736cb84d47445d26b"
   solver-name = "gps-cdcl"
   solver-version = 1

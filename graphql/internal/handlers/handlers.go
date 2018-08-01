@@ -12,6 +12,7 @@ import (
 	"github.com/abbeyhrt/keep-up/graphql/internal/config"
 	"github.com/abbeyhrt/keep-up/graphql/internal/database"
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
+	"github.com/abbeyhrt/keep-up/graphql/internal/session"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	uuid "github.com/satori/go.uuid"
@@ -66,6 +67,8 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	s := r.PathPrefix("/").Subrouter()
 
 	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
+	s.Handle("/graphql", GraphQLHandler(store))
+	s.Handle("/graphiql", GraphiqlHandler())
 	s.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
@@ -111,7 +114,7 @@ func SessionMiddleware(
 
 			blockKey := []byte(nil)
 
-			s := securecookie.New(hashKey, blockKey)
+			sc := securecookie.New(hashKey, blockKey)
 
 			cookie, err := r.Cookie(sessionKey)
 			if err != nil {
@@ -120,7 +123,7 @@ func SessionMiddleware(
 			}
 			value := make(map[string]string)
 			if err == nil {
-				err = s.Decode(sessionKey, cookie.Value, &value)
+				err = sc.Decode(sessionKey, cookie.Value, &value)
 			}
 			if err != nil {
 				log.Error(err)
@@ -128,23 +131,21 @@ func SessionMiddleware(
 				return
 			}
 
-			session, err := store.FindSessionByID(ctx, value["sessID"])
+			s, err := store.FindSessionByID(ctx, value["sessID"])
 			if err != nil {
 				log.Error(err)
 				http.Error(w, "error finding session", http.StatusInternalServerError)
 				return
 			}
 
-			user, err := store.FindUserByID(ctx, session.UserID)
+			user, err := store.FindUserByID(ctx, s.UserID)
 			if err != nil {
 				log.Error(err)
 				http.Error(w, "error finding session", http.StatusInternalServerError)
 				return
 			}
 
-			type contextUser struct{}
-			currentUser := contextUser{}
-			ctx = context.WithValue(ctx, currentUser, user)
+			ctx = session.NewContext(ctx, &session.Session{User: user})
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
