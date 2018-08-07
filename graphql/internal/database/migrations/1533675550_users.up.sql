@@ -3,6 +3,7 @@ CREATE TYPE oauth_provider AS ENUM ('facebook', 'google');
 
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  home_id UUID REFERENCES homes(id),
   name VARCHAR(64) NOT NULL,
   email VARCHAR(64) UNIQUE NOT NULL,
   avatar_url VARCHAR(512) NOT NULL DEFAULT 'http://http://www.gravatar.com/avatar/?d=mm',
