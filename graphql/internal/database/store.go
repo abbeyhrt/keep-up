@@ -46,6 +46,7 @@ func (s *SQLStore) FindUserByID(ctx context.Context, id string) (models.User, er
 	err := s.db.QueryRowContext(ctx, sqlGetUserByID, id).Scan(
 		&u.ID,
 		&u.Name,
+		&u.HomeID,
 		&u.Email,
 		&u.AvatarURL,
 		&u.Provider,
@@ -64,6 +65,7 @@ func (s *SQLStore) FindOrCreateUser(
 	err := s.db.QueryRowContext(ctx, sqlGetUserByProvider, u.Provider, u.ProviderID).Scan(
 		&u.ID,
 		&u.Name,
+		&u.HomeID,
 		&u.Email,
 		&u.AvatarURL,
 		&u.Provider,
@@ -114,6 +116,51 @@ func (s *SQLStore) CreateUser(
 	return user, nil
 }
 
+// CreateHome function that will be used in the handlers
+func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error) {
+	err := s.db.QueryRowContext(
+		ctx,
+		sqlCreateHome,
+		home.Name,
+		home.Description,
+		home.AvatarURL,
+	).Scan(
+		&home.ID,
+		&home.Name,
+		&home.Description,
+		&home.AvatarURL,
+		&home.CreatedAt,
+		&home.UpdatedAt,
+	)
+	if err != nil {
+		return home, fmt.Errorf("error creating home: %v", err)
+	}
+
+	_, err = s.db.ExecContext(
+		ctx,
+		sqlInsertHomeID,
+		home.ID,
+		userID,
+	)
+	if err != nil {
+		return home, fmt.Errorf("error creating home: %v", err)
+	}
+
+	return home, nil
+}
+
+//GetHomeByID used in handlers package
+func (s *SQLStore) GetHomeByID(ctx context.Context, homeID string) (models.Home, error) {
+	h := models.Home{}
+	err := s.db.QueryRowContext(ctx, sqlGetHomeByID, homeID).Scan(
+		&h.ID,
+		&h.Name,
+		&h.Description,
+	)
+
+	return h, err
+}
+
 const (
 	sqlCreateUser = `
 	INSERT into users
@@ -134,14 +181,33 @@ const (
 	WHERE id = $1`
 
 	sqlGetUserByProvider = `
-	SELECT id, name, email, avatar_url, provider, provider_id, created_at, updated_at
+	SELECT id, name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
 	FROM users
 	WHERE provider = $1 AND provider_id = $2
 	`
 
 	sqlGetUserByID = `
-	SELECT id, name, email, avatar_url, provider, provider_id, created_at, updated_at
+	SELECT id, name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
 	FROM users
+	WHERE id = $1
+	`
+
+	sqlCreateHome = `
+	INSERT into homes
+	(name, description, avatar_url)
+	VALUES ($1, $2, $3)
+	RETURNING id, name, description, avatar_url, created_at, updated_at
+	`
+
+	sqlInsertHomeID = `
+	UPDATE users
+	SET home_id = $1
+	WHERE id = $2
+	`
+
+	sqlGetHomeByID = `
+	SELECT id, name, description
+	FROM homes
 	WHERE id = $1
 	`
 )

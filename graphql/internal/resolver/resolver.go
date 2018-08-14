@@ -7,6 +7,7 @@ import (
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
 	"github.com/abbeyhrt/keep-up/graphql/internal/session"
 	graphql "github.com/graph-gophers/graphql-go"
+	"github.com/opentracing/opentracing-go/log"
 )
 
 type Resolver struct {
@@ -38,6 +39,11 @@ func (r *viewerResolver) Name() string {
 	return r.user.Name
 }
 
+func (r *viewerResolver) HomeID() *graphql.ID {
+	homeID := graphql.ID(r.user.HomeID)
+	return &homeID
+}
+
 func (r *viewerResolver) Email() string {
 	return r.user.Email
 }
@@ -52,4 +58,49 @@ func (r *viewerResolver) CreatedAt() string {
 
 func (r *viewerResolver) UpdatedAt() string {
 	return r.user.UpdatedAt.String()
+}
+
+func (r *Resolver) Home(ctx context.Context) (*homeResolver, error) {
+	s, ok := session.FromContext(ctx)
+	if !ok {
+		return nil, nil
+	}
+
+	u, err := r.store.FindUserByID(ctx, s.User.ID)
+
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	h, err := r.store.GetHomeByID(ctx, u.HomeID)
+
+	return &homeResolver{h}, nil
+}
+
+type homeResolver struct {
+	home models.Home
+}
+
+func (r *homeResolver) ID() graphql.ID {
+	return graphql.ID(r.home.ID)
+}
+
+func (r *homeResolver) Name() string {
+	return r.home.Name
+}
+
+func (r *homeResolver) Description() string {
+	return r.home.Description
+}
+
+func (r *homeResolver) AvatarURL() *string {
+	return &r.home.AvatarURL
+}
+
+func (r *homeResolver) CreatedAt() string {
+	return r.home.CreatedAt.String()
+}
+
+func (r *homeResolver) UpdatedAt() string {
+	return r.home.UpdatedAt.String()
 }
