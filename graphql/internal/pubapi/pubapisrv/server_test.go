@@ -32,6 +32,13 @@ func (s *MockStore) FindSessionByID(ctx context.Context, id string) (models.Sess
 	return models.Session{}, errors.New("not implemented")
 }
 
+func (s *MockStore) CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error) {
+	return models.Home{}, errors.New("not implemented")
+}
+func (s *MockStore) GetHomeByID(ctx context.Context, homeID string) (models.Home, error) {
+	return models.Home{}, errors.New("not implemented")
+}
+
 func TestNewServer(t *testing.T) {
 	ctx := context.Background()
 	addr := "0.0.0.0:3000"
