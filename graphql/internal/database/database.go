@@ -15,6 +15,8 @@ type DAL interface {
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	FindOrCreateUser(ctx context.Context, user *models.User) error
 	FindUserByID(ctx context.Context, id string) (models.User, error)
+	CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error)
+	GetHomeByID(ctx context.Context, homeID string) (models.Home, error)
 }
 
 func New(ctx context.Context, connStr string) (DAL, error) {

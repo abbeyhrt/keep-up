@@ -6,6 +6,7 @@ import "time"
 type User struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
+	HomeID     string    `json:"home_id"`
 	Email      string    `json:"email"`
 	AvatarURL  string    `json:"avatar_url"`
 	Provider   string    `json:"provider"`
@@ -14,8 +15,19 @@ type User struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
+// Session struct for storing into the database
 type Session struct {
 	ID        string
 	UserID    string
 	CreatedAt time.Time
+}
+
+//Home struct for manipulating home data
+type Home struct {
+	ID          string
+	Name        string
+	Description string
+	AvatarURL   string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }

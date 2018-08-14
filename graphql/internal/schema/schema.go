@@ -5,16 +5,30 @@ var Schema = `
 	schema {
 		query: Query
 	}
+
 	type Query {
 		viewer: Viewer
+		home: Home
 	}
 
 	type Viewer {
 		id: ID!
 		name: String!
+		home_id: ID
 		email: String!
 		avatarURL: String
 		createdAt: String!
 		updatedAt: String!
 	}
+
+	type Home {
+		id: ID!
+		name: String!
+  	description: String!
+	  avatarURL: String
+		createdAt: String!
+		updatedAt: String!
+	}
+
+
 `
