@@ -4,11 +4,19 @@ package schema
 var Schema = `
 	schema {
 		query: Query
+		mutation: Mutation
 	}
 
 	type Query {
 		viewer: Viewer
 		home: Home
+	}
+
+	type Mutation {
+		createHome(
+			name: String!,
+			description: String!
+		): Home!
 	}
 
 	type Viewer {
@@ -29,6 +37,5 @@ var Schema = `
 		createdAt: String!
 		updatedAt: String!
 	}
-
 
 `

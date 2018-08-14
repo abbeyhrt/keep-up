@@ -64,8 +64,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	).Methods("GET")
 
 	s := r.PathPrefix("/").Subrouter()
-	s.HandleFunc("/home", GetUserHome(ctx, store, cfg.CookieSecret))
-	s.HandleFunc("/create_home", CreateUserHome(ctx, store, cfg.CookieSecret))
+
 	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
 	s.Handle("/graphql", GraphQLHandler(store))
 	s.Handle("/graphiql", GraphiqlHandler())
@@ -334,101 +333,6 @@ func HandleGoogleCallback(
 
 		http.Redirect(w, r, "https://localhost:3001", http.StatusSeeOther)
 		fmt.Printf("Content: %s\n", userJSON)
-
-	}
-}
-
-func CreateUserHome(ctx context.Context, store database.DAL, secret string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		h := models.Home{
-			Name:        "Josh's Home",
-			Description: "This is josh's home",
-		}
-		hashKey := []byte(secret)
-
-		blockKey := []byte(nil)
-
-		sc := securecookie.New(hashKey, blockKey)
-
-		cookie, err := r.Cookie(sessionKey)
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-		value := make(map[string]string)
-		if err == nil {
-			err = sc.Decode(sessionKey, cookie.Value, &value)
-		}
-		if err != nil {
-			log.Error(err)
-			http.Error(w, "error decoding cookie value", http.StatusInternalServerError)
-			return
-		}
-
-		s, err := store.FindSessionByID(ctx, value["sessID"])
-		if err != nil {
-			log.Error(err)
-			http.Error(w, "error finding session", http.StatusInternalServerError)
-			return
-		}
-
-		home, err := store.CreateHome(ctx, h, s.UserID)
-		if err != nil {
-			http.Error(w, err.Error(),
-				http.StatusInternalServerError)
-			return
-		}
-
-		fmt.Fprintf(w, "this is the home: %s", home)
-
-	}
-}
-
-func GetUserHome(ctx context.Context, store database.DAL, secret string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		hashKey := []byte(secret)
-
-		blockKey := []byte(nil)
-
-		sc := securecookie.New(hashKey, blockKey)
-
-		cookie, err := r.Cookie(sessionKey)
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-		value := make(map[string]string)
-		if err == nil {
-			err = sc.Decode(sessionKey, cookie.Value, &value)
-		}
-		if err != nil {
-			log.Error(err)
-			http.Error(w, "error decoding cookie value", http.StatusInternalServerError)
-			return
-		}
-
-		s, err := store.FindSessionByID(ctx, value["sessID"])
-		if err != nil {
-			log.Error(err)
-			http.Error(w, "error finding session", http.StatusInternalServerError)
-			return
-		}
-
-		u, err := store.FindUserByID(ctx, s.UserID)
-		if err != nil {
-			log.Error(err)
-			http.Error(w, "error finding user", http.StatusInternalServerError)
-			return
-		}
-
-		h, err := store.GetHomeByID(ctx, u.HomeID)
-		if err != nil {
-			log.Error(err)
-			http.Error(w, "error finding home", http.StatusInternalServerError)
-			return
-		}
-
-		fmt.Fprintf(w, "this is the user's home: %s", h)
 
 	}
 }
