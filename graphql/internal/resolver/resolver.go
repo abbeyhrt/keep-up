@@ -77,6 +77,29 @@ func (r *Resolver) Home(ctx context.Context) (*homeResolver, error) {
 	return &homeResolver{h}, nil
 }
 
+func (r *Resolver) CreateHome(ctx context.Context, args *struct {
+	Name        string
+	Description string
+}) (*homeResolver, error) {
+	home := models.Home{
+		Name:        args.Name,
+		Description: args.Description,
+	}
+
+	s, ok := session.FromContext(ctx)
+	if !ok {
+		return nil, nil
+	}
+
+	h, err := r.store.CreateHome(ctx, home, s.User.ID)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return &homeResolver{h}, nil
+}
+
 type homeResolver struct {
 	home models.Home
 }
