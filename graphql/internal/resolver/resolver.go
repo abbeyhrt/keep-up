@@ -7,7 +7,7 @@ import (
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
 	"github.com/abbeyhrt/keep-up/graphql/internal/session"
 	graphql "github.com/graph-gophers/graphql-go"
-	"github.com/opentracing/opentracing-go/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type Resolver struct {
