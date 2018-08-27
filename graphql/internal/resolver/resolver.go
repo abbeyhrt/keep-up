@@ -74,7 +74,7 @@ func (r *Resolver) Home(ctx context.Context) (*homeResolver, error) {
 		return nil, nil
 	}
 
-	u, err := r.store.FindUserByID(ctx, s.User.ID)
+	u, err := r.store.GetUserByID(ctx, s.User.ID)
 
 	if err != nil {
 		log.Error(err)

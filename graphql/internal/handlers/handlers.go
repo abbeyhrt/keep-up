@@ -130,14 +130,14 @@ func SessionMiddleware(
 				return
 			}
 
-			s, err := store.FindSessionByID(ctx, value["sessID"])
+			s, err := store.GetSessionByID(ctx, value["sessID"])
 			if err != nil {
 				log.Error(err)
 				http.Error(w, "error finding session", http.StatusInternalServerError)
 				return
 			}
 
-			user, err := store.FindUserByID(ctx, s.UserID)
+			user, err := store.GetUserByID(ctx, s.UserID)
 			if err != nil {
 				log.Error(err)
 				http.Error(w, "error finding user", http.StatusInternalServerError)
@@ -296,7 +296,7 @@ func HandleGoogleCallback(
 			ProviderID: info.ID,
 		}
 
-		err = store.FindOrCreateUser(ctx, &user)
+		err = store.GetOrCreateUser(ctx, &user)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

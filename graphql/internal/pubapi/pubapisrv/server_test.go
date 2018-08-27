@@ -16,11 +16,11 @@ func (s *MockStore) CreateUser(ctx context.Context, user models.User) (models.Us
 	return models.User{}, errors.New("not implemented")
 }
 
-func (s *MockStore) FindOrCreateUser(ctx context.Context, user *models.User) error {
+func (s *MockStore) GetOrCreateUser(ctx context.Context, user *models.User) error {
 	return errors.New("not implemented")
 }
 
-func (s *MockStore) FindUserByID(ctx context.Context, id string) (models.User, error) {
+func (s *MockStore) GetUserByID(ctx context.Context, id string) (models.User, error) {
 	return models.User{}, errors.New("not implemented")
 }
 
@@ -28,7 +28,7 @@ func (s *MockStore) CreateSession(ctx context.Context, userID string) (models.Se
 	return models.Session{}, errors.New("not implemented")
 }
 
-func (s *MockStore) FindSessionByID(ctx context.Context, id string) (models.Session, error) {
+func (s *MockStore) GetSessionByID(ctx context.Context, id string) (models.Session, error) {
 	return models.Session{}, errors.New("not implemented")
 }
 
