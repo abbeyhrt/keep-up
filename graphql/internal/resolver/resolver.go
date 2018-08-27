@@ -18,17 +18,26 @@ func New(store database.DAL) *Resolver {
 	return &Resolver{store}
 }
 
-func (_ *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
+func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 	s, ok := session.FromContext(ctx)
 	if !ok {
 		return nil, nil
 	}
 
-	return &viewerResolver{s.User}, nil
+	home, err := r.store.GetHomeByID(ctx, s.User.HomeID)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return &viewerResolver{
+		user: s.User,
+		home: home,
+	}, nil
 }
 
 type viewerResolver struct {
 	user models.User
+	home models.Home
 }
 
 func (r *viewerResolver) ID() graphql.ID {
@@ -39,9 +48,8 @@ func (r *viewerResolver) Name() string {
 	return r.user.Name
 }
 
-func (r *viewerResolver) HomeID() *graphql.ID {
-	homeID := graphql.ID(r.user.HomeID)
-	return &homeID
+func (r *viewerResolver) Home() *homeResolver {
+	return &homeResolver{r.home}
 }
 
 func (r *viewerResolver) Email() string {

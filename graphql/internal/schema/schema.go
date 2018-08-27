@@ -22,7 +22,7 @@ var Schema = `
 	type Viewer {
 		id: ID!
 		name: String!
-		home_id: ID
+		home: Home
 		email: String!
 		avatarURL: String
 		createdAt: String!

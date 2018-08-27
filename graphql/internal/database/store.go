@@ -150,7 +150,7 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 }
 
 //GetHomeByID used in handlers package
-func (s *SQLStore) GetHomeByID(ctx context.Context, homeID string) (models.Home, error) {
+func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home, error) {
 	h := models.Home{}
 	err := s.db.QueryRowContext(ctx, sqlGetHomeByID, homeID).Scan(
 		&h.ID,
