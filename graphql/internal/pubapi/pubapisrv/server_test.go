@@ -35,7 +35,7 @@ func (s *MockStore) FindSessionByID(ctx context.Context, id string) (models.Sess
 func (s *MockStore) CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error) {
 	return models.Home{}, errors.New("not implemented")
 }
-func (s *MockStore) GetHomeByID(ctx context.Context, homeID string) (models.Home, error) {
+func (s *MockStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home, error) {
 	return models.Home{}, errors.New("not implemented")
 }
 
