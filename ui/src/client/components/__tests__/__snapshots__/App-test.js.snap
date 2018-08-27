@@ -41,29 +41,11 @@ exports[`App should render 1`] = `
           />
           <Route
             component={[Function]}
-            path="/home/edit"
-          />
-          <Route
-            component={[Function]}
             path="/login"
           />
           <Route
             component={[Function]}
             path="/sign-up"
-          />
-          <Route
-            component={[Function]}
-            exact={true}
-            path="/rooms"
-          />
-          <Route
-            component={[Function]}
-            exact={true}
-            path="/rooms/:room"
-          />
-          <Route
-            component={[Function]}
-            path="rooms/:room/edit"
           />
           <Route
             component={[Function]}
@@ -85,7 +67,7 @@ exports[`App should render 1`] = `
           />
           <Route
             component={[Function]}
-            path="/onboarding/"
+            path="/onboarding"
           />
           <Route
             component={[Function]}

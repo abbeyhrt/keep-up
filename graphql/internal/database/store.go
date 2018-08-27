@@ -32,7 +32,7 @@ func (s *SQLStore) CreateSession(ctx context.Context, userID string) (models.Ses
 
 }
 
-func (s *SQLStore) FindSessionByID(ctx context.Context, id string) (models.Session, error) {
+func (s *SQLStore) GetSessionByID(ctx context.Context, id string) (models.Session, error) {
 	session := models.Session{}
 	err := s.db.QueryRowContext(ctx, sqlGetSessionByID, id).Scan(
 		&session.ID,
@@ -41,7 +41,7 @@ func (s *SQLStore) FindSessionByID(ctx context.Context, id string) (models.Sessi
 	return session, err
 }
 
-func (s *SQLStore) FindUserByID(ctx context.Context, id string) (models.User, error) {
+func (s *SQLStore) GetUserByID(ctx context.Context, id string) (models.User, error) {
 	u := models.User{}
 	err := s.db.QueryRowContext(ctx, sqlGetUserByID, id).Scan(
 		&u.ID,
@@ -58,7 +58,7 @@ func (s *SQLStore) FindUserByID(ctx context.Context, id string) (models.User, er
 	return u, err
 }
 
-func (s *SQLStore) FindOrCreateUser(
+func (s *SQLStore) GetOrCreateUser(
 	ctx context.Context,
 	u *models.User,
 ) error {
@@ -150,7 +150,7 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 }
 
 //GetHomeByID used in handlers package
-func (s *SQLStore) GetHomeByID(ctx context.Context, homeID string) (models.Home, error) {
+func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home, error) {
 	h := models.Home{}
 	err := s.db.QueryRowContext(ctx, sqlGetHomeByID, homeID).Scan(
 		&h.ID,
