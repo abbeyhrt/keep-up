@@ -24,6 +24,13 @@ func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 		return nil, nil
 	}
 
+	if s.User.HomeID == nil {
+		return &viewerResolver{
+			user: s.User,
+			home: nil,
+		}, nil
+	}
+
 	home, err := r.store.GetHomeByID(ctx, s.User.HomeID)
 	if err != nil {
 		log.Error(err)
@@ -31,13 +38,13 @@ func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 
 	return &viewerResolver{
 		user: s.User,
-		home: home,
+		home: &home,
 	}, nil
 }
 
 type viewerResolver struct {
 	user models.User
-	home models.Home
+	home *models.Home
 }
 
 func (r *viewerResolver) ID() graphql.ID {
@@ -49,7 +56,10 @@ func (r *viewerResolver) Name() string {
 }
 
 func (r *viewerResolver) Home() *homeResolver {
-	return &homeResolver{r.home}
+	if r.home == nil {
+		return nil
+	}
+	return &homeResolver{*r.home}
 }
 
 func (r *viewerResolver) Email() string {
