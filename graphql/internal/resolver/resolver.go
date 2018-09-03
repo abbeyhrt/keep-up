@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/database"
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
@@ -19,6 +20,7 @@ func New(store database.DAL) *Resolver {
 }
 
 func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
+
 	s, ok := session.FromContext(ctx)
 	if !ok {
 		return nil, nil
@@ -26,8 +28,9 @@ func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 
 	if s.User.HomeID == nil {
 		return &viewerResolver{
-			user: s.User,
-			home: nil,
+			user:  s.User,
+			home:  nil,
+			tasks: nil,
 		}, nil
 	}
 
@@ -36,15 +39,29 @@ func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 		log.Error(err)
 	}
 
+	tasks, err := r.store.GetTasksByUserID(ctx, s.User.ID)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	resolvers := make([]*taskResolver, len(tasks))
+
+	for i, task := range tasks {
+		resolvers[i] = &taskResolver{task}
+	}
+
 	return &viewerResolver{
-		user: s.User,
-		home: &home,
+		user:  s.User,
+		home:  &home,
+		tasks: resolvers,
 	}, nil
 }
 
 type viewerResolver struct {
-	user models.User
-	home *models.Home
+	user  models.User
+	home  *models.Home
+	tasks []*taskResolver
 }
 
 func (r *viewerResolver) ID() graphql.ID {
@@ -62,6 +79,13 @@ func (r *viewerResolver) Home() *homeResolver {
 	return &homeResolver{*r.home}
 }
 
+func (r *viewerResolver) Tasks() []*taskResolver {
+	if r.tasks == nil {
+		return nil
+	}
+	return r.tasks
+}
+
 func (r *viewerResolver) Email() string {
 	return r.user.Email
 }
@@ -76,6 +100,77 @@ func (r *viewerResolver) CreatedAt() string {
 
 func (r *viewerResolver) UpdatedAt() string {
 	return r.user.UpdatedAt.String()
+}
+
+func (r *Resolver) Tasks(ctx context.Context) ([]*taskResolver, error) {
+	s, ok := session.FromContext(ctx)
+	if !ok {
+		return nil, nil
+	}
+
+	tasks, err := r.store.GetTasksByUserID(ctx, s.User.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvers := make([]*taskResolver, len(tasks))
+
+	for i, task := range tasks {
+		resolvers[i] = &taskResolver{task}
+	}
+
+	return resolvers, nil
+}
+
+func (r *Resolver) CreateTask(ctx context.Context, args *struct {
+	Title       string
+	Description string
+}) (*taskResolver, error) {
+
+	s, ok := session.FromContext(ctx)
+	if !ok {
+		return nil, nil
+	}
+
+	t := models.Task{
+		Title:       args.Title,
+		Description: args.Description,
+	}
+
+	task, err := r.store.CreateTask(ctx, t, s.User.ID)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return &taskResolver{task}, nil
+}
+
+type taskResolver struct {
+	task models.Task
+}
+
+func (r *taskResolver) ID() graphql.ID {
+	return graphql.ID(r.task.ID)
+}
+func (r *taskResolver) UserID() string {
+	return r.task.UserID
+}
+
+func (r *taskResolver) Title() string {
+	return r.task.Title
+}
+
+func (r *taskResolver) Description() string {
+	return r.task.Description
+}
+
+func (r *taskResolver) CreatedAt() string {
+	return r.task.CreatedAt.String()
+}
+
+func (r *taskResolver) UpdatedAt() string {
+	return r.task.UpdatedAt.String()
 }
 
 func (r *Resolver) Home(ctx context.Context) (*homeResolver, error) {
