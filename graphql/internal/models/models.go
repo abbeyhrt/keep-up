@@ -31,3 +31,13 @@ type Home struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
+
+//Task struct for users' tasks
+type Task struct {
+	ID          string
+	UserID      string
+	Title       string
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}

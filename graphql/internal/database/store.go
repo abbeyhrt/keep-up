@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
+	"github.com/opentracing/opentracing-go/log"
 )
 
 func NewStoreFromClient(db *sql.DB) *SQLStore {
@@ -161,6 +162,62 @@ func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home
 	return h, err
 }
 
+func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error) {
+	err := s.db.QueryRowContext(
+		ctx,
+		sqlCreateTask,
+		userID,
+		task.Title,
+		task.Description,
+	).Scan(
+		&task.ID,
+		&task.UserID,
+		&task.Title,
+		&task.Description,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+	)
+	if err != nil {
+		return task, fmt.Errorf("error creating home: %v", err)
+	}
+
+	return task, nil
+
+}
+
+func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error) {
+	rows, err := s.db.QueryContext(ctx, sqlGetTasksByUserID, userID)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var tasks []models.Task
+
+	for rows.Next() {
+		t := models.Task{}
+
+		err := rows.Scan(
+			&t.ID,
+			&t.UserID,
+			&t.Title,
+			&t.Description,
+			&t.CreatedAt,
+			&t.UpdatedAt,
+		)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		tasks = append(tasks, t)
+	}
+
+	return tasks, nil
+}
+
 const (
 	sqlCreateUser = `
 	INSERT into users
@@ -209,5 +266,18 @@ const (
 	SELECT id, name, description
 	FROM homes
 	WHERE id = $1
+	`
+
+	sqlCreateTask = `
+	INSERT into tasks
+	(user_id, title, description)
+	VALUES ($1, $2, $3)
+	RETURNING id, user_id, title, description, created_at, updated_at
+	`
+
+	sqlGetTasksByUserID = `
+	SELECT id, user_id, title, description, created_at, updated_at
+	FROM tasks
+	WHERE user_id = $1
 	`
 )
