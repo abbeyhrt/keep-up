@@ -35,8 +35,17 @@ func (s *MockStore) GetSessionByID(ctx context.Context, id string) (models.Sessi
 func (s *MockStore) CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error) {
 	return models.Home{}, errors.New("not implemented")
 }
+
 func (s *MockStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home, error) {
 	return models.Home{}, errors.New("not implemented")
+}
+
+func (s *MockStore) CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error) {
+	return models.Task{}, errors.New("not implemented")
+}
+
+func (s *MockStore) GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error) {
+	return []models.Task{}, errors.New("not implemented")
 }
 
 func TestNewServer(t *testing.T) {
