@@ -9,6 +9,7 @@ import Onboard from './Onboard';
 import Task from './Task';
 import Tasks from './Tasks';
 import OnboardPart2 from './OnboardPart2';
+import Tester from './Tester';
 
 const App = () => (
   <Router>
@@ -26,6 +27,7 @@ const App = () => (
         <Route path="/server-error" component={ServerError} />
         <Route path="/onboarding" component={Onboard} />
         <Route path="/onboarding/:step" component={OnboardPart2} />
+        <Route path="/tester" component={Tester} />
       </div>
     </div>
   </Router>
