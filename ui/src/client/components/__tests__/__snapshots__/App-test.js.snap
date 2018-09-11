@@ -73,6 +73,10 @@ exports[`App should render 1`] = `
             component={[Function]}
             path="/onboarding/:step"
           />
+          <Route
+            component={[Function]}
+            path="/tester"
+          />
         </div>
       </div>
     </Router>
