@@ -6,9 +6,10 @@ import SignUp from './SignUp';
 import NotFound from './NotFound';
 import ServerError from './ServerError';
 import Onboard from './Onboard';
-import Task from './Task';
+import TaskPage from './TaskPage';
 import Tasks from './Tasks';
 import OnboardPart2 from './OnboardPart2';
+import Tester from './Tester';
 
 const App = () => (
   <Router>
@@ -20,12 +21,12 @@ const App = () => (
         <Route path="/login" component={Login} />
         <Route path="/sign-up" component={SignUp} />
         <Route exact path="/tasks" component={Tasks} />
-        <Route exact path="/tasks/:task" component={Task} />
-        {/* <Route path="tasks/:task/edit" component={TaskFormc} /> */}
+        <Route exact path="/tasks/:id" component={TaskPage} />
         <Route path="/whoops" component={NotFound} />
         <Route path="/server-error" component={ServerError} />
         <Route path="/onboarding" component={Onboard} />
         <Route path="/onboarding/:step" component={OnboardPart2} />
+        <Route path="/tester" component={Tester} />
       </div>
     </div>
   </Router>

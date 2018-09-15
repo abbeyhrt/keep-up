@@ -1,21 +1,14 @@
-import React, { Component } from 'react';
-// import { graphql } from 'react-apollo';
-// import gql from 'graphql-tag';
-import PropTypes from 'prop-types';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-class TaskPage extends Component {
-  static propTypes = {
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-  };
-  render() {
-    return (
-      <div>
-        <h2>{this.props.title}</h2>
-        <p>{this.props.description}</p>
-      </div>
-    );
-  }
+function TaskPage(props) {
+  return (
+    <div key={props.id}>
+      <p>{props.title}</p>
+      <Link to={`/tasks/${props.id}`}>{props.title}</Link>
+      <p>{props.description}</p>
+    </div>
+  );
 }
 
 export default TaskPage;
