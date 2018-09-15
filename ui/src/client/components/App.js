@@ -21,7 +21,7 @@ const App = () => (
         <Route path="/login" component={Login} />
         <Route path="/sign-up" component={SignUp} />
         <Route exact path="/tasks" component={Tasks} />
-        <Route exact path="/graphql/tasks/:id" component={TaskPage} />
+        <Route exact path="/tasks/:id" component={TaskPage} />
         <Route path="/whoops" component={NotFound} />
         <Route path="/server-error" component={ServerError} />
         <Route path="/onboarding" component={Onboard} />
