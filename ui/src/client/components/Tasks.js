@@ -1,62 +1,46 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
+import TaskPage from './TaskPage';
+
+const GET_USER_TASKS = gql`
+  {
+    viewer {
+      id
+      tasks {
+        id
+        title
+        description
+      }
+    }
+  }
+`;
 
 const Tasks = () => {
-  let tasks = '';
   return (
-    <Query
-      query={gql`
-        {
-          viewer {
-            id
-            tasks {
-              id
-              title
-              description
-            }
-          }
-        }
-      `}>
+    <Query query={GET_USER_TASKS}>
       {({ loading, error, data }) => {
         if (loading) return <p>Loading...</p>;
         if (error) {
           console.log(error);
-          return <p>{error}</p>;
+          return (
+            <div>
+              <p>{error}</p>
+            </div>
+          );
         }
-        tasks = data.viewer.tasks;
-        const map = tasks.map(task => (
-          <div key={task.id}>
-            <p>{task.title}</p>
-            <p>{task.description}</p>
-          </div>
+        const tasks = data.viewer.tasks;
+        return tasks.map(task => (
+          <TaskPage
+            title={task.title}
+            description={task.description}
+            id={task.id}
+            key={task.id}
+          />
         ));
-        return map;
       }}
     </Query>
   );
 };
-// <Query
-//   query={gql`
-//     {
-//       viewer {
-//         id
-//         tasks {
-//           title
-//           description
-//         }
-//       }
-//     }
-//   `}>
-//   {({ loading, error, data }) => {
-//     if (loading) return <p>Loading...</p>;
-//     if (error) {
-//       //eslint-disable-next-line no-console
-//       console.log(error);
-//       return <p>error</p>;
-//     }
-//     return data.viewer.tasks.title;
-//   }}
-// </Query>
 
 export default Tasks;

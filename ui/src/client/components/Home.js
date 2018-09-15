@@ -3,21 +3,22 @@ import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 
-const Home = () => (
-  <Query
-    query={gql`
-      {
-        viewer {
-          id
-          home {
-            id
-            name
-          }
-          name
-          email
-        }
+const GET_USER_HOME = gql`
+  {
+    viewer {
+      id
+      home {
+        id
+        name
       }
-    `}>
+      name
+      email
+    }
+  }
+`;
+
+const Home = () => (
+  <Query query={GET_USER_HOME}>
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>;
       if (error) {
