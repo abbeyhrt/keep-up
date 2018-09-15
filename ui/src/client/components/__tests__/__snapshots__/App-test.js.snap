@@ -55,7 +55,7 @@ exports[`App should render 1`] = `
           <Route
             component={[Function]}
             exact={true}
-            path="/graphql/tasks/:id"
+            path="/tasks/:id"
           />
           <Route
             component={[Function]}
