@@ -48,6 +48,10 @@ func (s *MockStore) GetTasksByUserID(ctx context.Context, userID string) ([]mode
 	return []models.Task{}, errors.New("not implemented")
 }
 
+func (s *MockStore) GetTaskByID(ctx context.Context, id string) (models.Task, error) {
+	return models.Task{}, errors.New("not implemented")
+}
+
 func TestNewServer(t *testing.T) {
 	ctx := context.Background()
 	addr := "0.0.0.0:3000"
