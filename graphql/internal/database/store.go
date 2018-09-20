@@ -218,6 +218,27 @@ func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]model
 	return tasks, nil
 }
 
+func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, error) {
+	t := models.Task{}
+	err := s.db.QueryRowContext(
+		ctx,
+		sqlGetTaskByID,
+		id,
+	).Scan(
+		&t.ID,
+		&t.UserID,
+		&t.Title,
+		&t.Description,
+	)
+	if err != nil {
+		log.Error(err)
+		fmt.Printf("this is the error from DB: %s", err)
+		return t, err
+	}
+
+	return t, err
+}
+
 const (
 	sqlCreateUser = `
 	INSERT into users
@@ -280,4 +301,9 @@ const (
 	FROM tasks
 	WHERE user_id = $1
 	`
+
+	sqlGetTaskByID = `
+	SELECT id, user_id, title, description
+	FROM tasks
+	WHERE id = $1`
 )

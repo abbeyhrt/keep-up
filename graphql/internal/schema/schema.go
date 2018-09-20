@@ -10,6 +10,7 @@ var Schema = `
 	type Query {
 		viewer: Viewer
 		home: Home
+		task(id: ID!): Task
 	}
 
 	type Mutation {

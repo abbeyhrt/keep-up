@@ -11,8 +11,6 @@ const GET_USER_HOME = gql`
         id
         name
       }
-      name
-      email
     }
   }
 `;

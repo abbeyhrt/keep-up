@@ -122,6 +122,17 @@ func (r *Resolver) Tasks(ctx context.Context) ([]*taskResolver, error) {
 	return resolvers, nil
 }
 
+func (r *Resolver) Task(ctx context.Context, args *struct {
+	ID string
+}) (*taskResolver, error) {
+	task, err := r.store.GetTaskByID(ctx, args.ID)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	return &taskResolver{task}, nil
+}
+
 func (r *Resolver) CreateTask(ctx context.Context, args *struct {
 	Title       string
 	Description string
