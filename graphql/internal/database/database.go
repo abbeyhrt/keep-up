@@ -20,6 +20,7 @@ type DAL interface {
 	CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error)
 	GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error)
 	GetTaskByID(ctx context.Context, id string) (models.Task, error)
+	GetUsersByName(ctx context.Context, name string) ([]models.User, error)
 }
 
 func New(ctx context.Context, connStr string) (DAL, error) {

@@ -21,10 +21,11 @@ import (
 )
 
 type googleUserInfo struct {
-	ID      string `json:"id"`
-	Email   string `json:"email"`
-	Name    string `json:"name"`
-	Picture string `json:"picture"`
+	ID        string `json:"id"`
+	Email     string `json:"email"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Picture   string `json:"picture"`
 }
 
 func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handler {
@@ -286,9 +287,13 @@ func HandleGoogleCallback(
 			return
 		}
 
+		fmt.Printf("this is the first name: %s", info)
+
 		user := models.User{
-			ID:         `json:"id"`,
-			Name:       info.Name,
+			ID:        `json:"id"`,
+			FirstName: info.FirstName,
+			LastName:  info.LastName,
+			//	Name:       info.Name,
 			Email:      info.Email,
 			AvatarURL:  info.Picture,
 			Provider:   "google",

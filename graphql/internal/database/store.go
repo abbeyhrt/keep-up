@@ -46,7 +46,8 @@ func (s *SQLStore) GetUserByID(ctx context.Context, id string) (models.User, err
 	u := models.User{}
 	err := s.db.QueryRowContext(ctx, sqlGetUserByID, id).Scan(
 		&u.ID,
-		&u.Name,
+		&u.FirstName,
+		&u.LastName,
 		&u.HomeID,
 		&u.Email,
 		&u.AvatarURL,
@@ -65,7 +66,8 @@ func (s *SQLStore) GetOrCreateUser(
 ) error {
 	err := s.db.QueryRowContext(ctx, sqlGetUserByProvider, u.Provider, u.ProviderID).Scan(
 		&u.ID,
-		&u.Name,
+		&u.FirstName,
+		&u.LastName,
 		&u.HomeID,
 		&u.Email,
 		&u.AvatarURL,
@@ -95,14 +97,16 @@ func (s *SQLStore) CreateUser(
 	err := s.db.QueryRowContext(
 		ctx,
 		sqlCreateUser,
-		user.Name,
+		user.FirstName,
+		user.LastName,
 		user.Email,
 		user.AvatarURL,
 		user.Provider,
 		user.ProviderID,
 	).Scan(
 		&user.ID,
-		&user.Name,
+		&user.FirstName,
+		&user.LastName,
 		&user.Email,
 		&user.AvatarURL,
 		&user.Provider,
@@ -239,12 +243,45 @@ func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, err
 	return t, err
 }
 
+func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
+	rows, err := s.db.QueryContext(ctx, sqlGetUsersByName, name)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var users []models.User
+
+	for rows.Next() {
+		u := models.User{}
+
+		err := rows.Scan(
+			&u.ID,
+			&u.FirstName,
+			&u.LastName,
+			&u.HomeID,
+			&u.Email,
+			&u.AvatarURL,
+		)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		users = append(users, u)
+	}
+
+	return users, nil
+}
+
 const (
 	sqlCreateUser = `
 	INSERT into users
-	(name, email, avatar_url, provider, provider_id)
+	(first_name, last_name, email, avatar_url, provider, provider_id)
 	VALUES ($1, $2, $3, $4, $5)
-	RETURNING id, name, email, avatar_url, provider, provider_id, created_at, updated_at
+	RETURNING id, first_name, last_name, email, avatar_url, provider, provider_id, created_at, updated_at
 	`
 
 	sqlCreateSession = `
@@ -259,15 +296,21 @@ const (
 	WHERE id = $1`
 
 	sqlGetUserByProvider = `
-	SELECT id, name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
+	SELECT id, first_name, last_name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
 	FROM users
 	WHERE provider = $1 AND provider_id = $2
 	`
 
 	sqlGetUserByID = `
-	SELECT id, name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
+	SELECT id, first_name, last_name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
 	FROM users
 	WHERE id = $1
+	`
+
+	sqlGetUsersByName = `
+	SELECT id, first_name, last_name, home_id, email, avatar_url
+	FROM users
+	WHERE first_name = $1
 	`
 
 	sqlCreateHome = `

@@ -68,8 +68,12 @@ func (r *viewerResolver) ID() graphql.ID {
 	return graphql.ID(r.user.ID)
 }
 
-func (r *viewerResolver) Name() string {
-	return r.user.Name
+func (r *viewerResolver) FirstName() string {
+	return r.user.FirstName
+}
+
+func (r *viewerResolver) LastName() string {
+	return r.user.LastName
 }
 
 func (r *viewerResolver) Home() *homeResolver {
