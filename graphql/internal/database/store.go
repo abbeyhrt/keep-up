@@ -280,7 +280,7 @@ const (
 	sqlCreateUser = `
 	INSERT into users
 	(first_name, last_name, email, avatar_url, provider, provider_id)
-	VALUES ($1, $2, $3, $4, $5)
+	VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING id, first_name, last_name, email, avatar_url, provider, provider_id, created_at, updated_at
 	`
 
