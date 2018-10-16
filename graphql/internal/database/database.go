@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
 	_ "github.com/lib/pq"
+	log "github.com/sirupsen/logrus"
 )
 
 type DAL interface {
@@ -28,8 +30,21 @@ func New(ctx context.Context, connStr string) (DAL, error) {
 		return nil, fmt.Errorf("error opening db connection %v", err)
 	}
 
-	if err := db.PingContext(ctx); err != nil {
-		return nil, fmt.Errorf("error pinging db: %v", err)
+	err = db.PingContext(ctx)
+
+	if err != nil {
+		attempts := 0
+		for attempts <= 6 {
+			attempts++
+			log.Infof("Retrying database connection, attempt #%d", connStr, attempts)
+			if err := db.PingContext(ctx); err != nil {
+				break
+			}
+			time.Sleep(10 * time.Second)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("error pinging db: %v", err)
+		}
 	}
 
 	return &SQLStore{db}, nil

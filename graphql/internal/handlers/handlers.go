@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -301,12 +300,6 @@ func HandleGoogleCallback(
 			return
 		}
 
-		userJSON, err := json.Marshal(user)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
 		session, err := store.CreateSession(ctx, user.ID)
 		if err != nil {
 			http.Error(w, err.Error(),
@@ -330,8 +323,6 @@ func HandleGoogleCallback(
 
 		}
 
-		http.Redirect(w, r, "https://localhost:3001", http.StatusSeeOther)
-		fmt.Printf("Content: %s\n", userJSON)
-
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
