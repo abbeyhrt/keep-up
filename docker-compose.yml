@@ -3,10 +3,9 @@ services:
   postgres:
     image: postgres:9.6.1
     ports:
-    - "${DB_PORT:-5432}:5432"
-
+      - "${DB_PORT:-5432}:5432"
     volumes:
-    - "local-db-volume:/var/lib.postgresql/data"
+      - "local-db-volume:/var/lib.postgresql/data"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -14,11 +13,25 @@ services:
   graphql:
     build:
       context: ./graphql
-    command: ["/wait-for-it.sh", "postgres:5432", "--", "pubapid"]
     ports:
-      - "3000:3000"
+      - "3001:3001"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3001
+      DB_ADDRESS: postgres:5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: keep_up_dev
+      DB_SSL_MODE: disable
     env_file:
       - ./.env.dev
+    depends_on:
+      - postgres
+  proxy:
+    build:
+      context: ./proxy
+    ports:
+      - "3000:443"
 volumes:
   local-db-volume:
     driver: local
