@@ -7,15 +7,15 @@ we are deploying.
 
 These attributes include things like:
 
-* `applications`: a list of applications that we are deploying
-* `name`: the name of the Cloudfoundry service we're creating
-* `buildpack`: the tools needed to run our specific service in the Cloudfoundry
+- `applications`: a list of applications that we are deploying
+- `name`: the name of the Cloudfoundry service we're creating
+- `buildpack`: the tools needed to run our specific service in the Cloudfoundry
   environment
-* `command`: the command used to start our service
-* `memory`: how much RAM is available to our service
-* `disk_quota`: how much storage is available on disk for our service and its
+- `command`: the command used to start our service
+- `memory`: how much RAM is available to our service
+- `disk_quota`: how much storage is available on disk for our service and its
   dependencies
-* `env`: a set of key-value pairs that set ENV variables in the process that our
+- `env`: a set of key-value pairs that set ENV variables in the process that our
   service will be running in
 
 Raw Changes:
@@ -58,7 +58,7 @@ Once that's done, run the command `bx login` in your terminal which will prompt 
 
 Now that your CloudFoundry resource is up and running, we can add the Travis configuration
 
-* We added a `.travis.yml` file to the project that specified what language the project is written in and what version of that language. For us, that was this code at the top of the `.travis.yml` file:
+- We added a `.travis.yml` file to the project that specified what language the project is written in and what version of that language. For us, that was this code at the top of the `.travis.yml` file:
 
 ```
 language: go
@@ -67,8 +67,8 @@ go:
   - "1.10"
 ```
 
-* added ci check to PR in the setting in integration and services on GitHub for this repo
-* added build tag to readme.md file which we got from the travis website by clicking the build(unknown) tag:
+- added ci check to PR in the setting in integration and services on GitHub for this repo
+- added build tag to readme.md file which we got from the travis website by clicking the build(unknown) tag:
 
 #
 
@@ -76,7 +76,7 @@ go:
 
 #
 
-* To `.travis.yml` file we also added the deploy specification. The end result of this for us was:
+- To `.travis.yml` file we also added the deploy specification. The end result of this for us was:
 
 ```
 deploy:
@@ -88,7 +88,7 @@ deploy:
   space: [your space]
 ```
 
-* for the deploy part of the `travis.yml` file, most of the configurations come from the dashboard application.
+- for the deploy part of the `travis.yml` file, most of the configurations come from the dashboard application.
 
 #
 
@@ -102,7 +102,7 @@ Cloud Foundry Space === [your space] and same goes for [your cloudfoundry org]. 
 
 1.  Hover over manage in the upper right hand corner and hover opver security and the click and then click platform api keys where you will create a secure API key to replace your password in the `.travis.yml` file. Name it whatever you like.
 
-* when you've created the API key, show it and copy it and then run the command `bx login --apikey {YOUR_API_KEY}` where YOUR_API_KEY is that long string of numbers and letters that you got from cloudfoundry.
+- when you've created the API key, show it and copy it and then run the command `bx login --apikey {YOUR_API_KEY}` where YOUR_API_KEY is that long string of numbers and letters that you got from cloudfoundry.
 
 If i remembered correctly, this should be everything for our version of CI build. Now when a pull request is merged, travis will automatically run the build to deploy the changes to the repository.
 
