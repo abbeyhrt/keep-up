@@ -1,0 +1,12 @@
+---
+applications:
+  - name: keep-up-ui
+    memory: 128M
+    disk_quota: 1024M
+    instances: 1
+    buildpack: sdk-for-nodejs
+    env:
+      NODE_ENV: production
+    command: npm start
+    routes:
+      - route: keepup.company
