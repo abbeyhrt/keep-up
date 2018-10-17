@@ -2,9 +2,9 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "ui"
+      "ui2"
     ],
-    "nohoist": []
+    "nohoist": ["ui2/**"]
   },
   "scripts": {
     "ci-check": "yarn format:diff && yarn workspaces run ci-check",
@@ -12,6 +12,9 @@
     "format": "prettier --write \"**/*.{scss,css,js,md,ts}\"",
     "format:diff": "prettier --list-different \"**/*.{scss,css,js,md,ts}\"",
     "precommit": "lint-staged"
+  },
+  "resolutions": {
+    "jsdom": "11.11.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^6.1.3",
