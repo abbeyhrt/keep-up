@@ -20,10 +20,6 @@ WORKDIR /etc/nginx
 COPY . .
 
 # TODO: toggle this based on environment
-RUN ln -s /etc/nginx/sites-available/localhost.conf /etc/nginx/sites-enabled/
-
-# Used for debugging built UIs
-# COPY build /usr/share/nginx/html/localhost-build/
-# RUN ln -s /etc/nginx/sites-available/localhost-build.conf /etc/nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
 
 CMD ["nginx", "-g", "daemon off;"]

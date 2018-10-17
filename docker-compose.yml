@@ -14,10 +14,10 @@ services:
     build:
       context: ./graphql
     ports:
-      - "3002:3002"
+      - "3001:3001"
     environment:
       HOST: 0.0.0.0
-      PORT: 3002
+      PORT: 3001
       DB_ADDRESS: postgres:5432
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
