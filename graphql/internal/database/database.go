@@ -36,7 +36,7 @@ func New(ctx context.Context, connStr string) (DAL, error) {
 		attempts := 0
 		for attempts <= 6 {
 			attempts++
-			log.Infof("Retrying database connection, attempt #%d", attempts)
+			log.Infof("Retrying database connection, attempt #%d", connStr, attempts)
 			if err := db.PingContext(ctx); err != nil {
 				break
 			}
