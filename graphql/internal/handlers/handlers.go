@@ -64,6 +64,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	).Methods("GET")
 
 	s := r.PathPrefix("/").Subrouter()
+	//s.HandleFunc("/users", GetUsersHandler(ctx, store))
 	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
 	s.Handle("/graphql", GraphQLHandler(store))
 	s.Handle("/graphiql", GraphiqlHandler())
@@ -287,9 +288,9 @@ func HandleGoogleCallback(
 		}
 
 		user := models.User{
-			ID:        `json:"id"`,
-			FirstName: info.GivenName,
-			LastName:  info.FamilyName,
+			ID:         `json:"id"`,
+			FirstName:  info.GivenName,
+			LastName:   info.FamilyName,
 			Email:      info.Email,
 			AvatarURL:  info.Picture,
 			Provider:   "google",
@@ -335,3 +336,17 @@ func HandleGoogleCallback(
 
 	}
 }
+
+// func GetUsersHandler(ctx context.Context, store database.DAL) func(w http.ResponseWriter, r *http.Request) {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		name := "Josh Black"
+
+// 		res, err := store.GetUsersByName(ctx, name)
+// 		if err != nil {
+// 			log.Error(err)
+// 			return
+// 		}
+
+// 		fmt.Fprintf(w, "these are the error: %v", res)
+// 	}
+// }

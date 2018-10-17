@@ -310,7 +310,7 @@ const (
 	sqlGetUsersByName = `
 	SELECT id, first_name, last_name, home_id, email, avatar_url
 	FROM users
-	WHERE first_name = $1
+	WHERE CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER('%' || $1 || '%')
 	`
 
 	sqlCreateHome = `

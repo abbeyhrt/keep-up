@@ -15,12 +15,12 @@ type DAL interface {
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	GetOrCreateUser(ctx context.Context, user *models.User) error
 	GetUserByID(ctx context.Context, id string) (models.User, error)
+	GetUsersByName(ctx context.Context, name string) ([]models.User, error)
 	CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error)
 	GetHomeByID(ctx context.Context, homeID *string) (models.Home, error)
 	CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error)
 	GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error)
 	GetTaskByID(ctx context.Context, id string) (models.Task, error)
-	GetUsersByName(ctx context.Context, name string) ([]models.User, error)
 }
 
 func New(ctx context.Context, connStr string) (DAL, error) {

@@ -106,6 +106,61 @@ func (r *viewerResolver) UpdatedAt() string {
 	return r.user.UpdatedAt.String()
 }
 
+type userResolver struct {
+	user models.User
+}
+
+func (r *Resolver) Users(ctx context.Context, args *struct {
+	Name string
+}) (*[]*userResolver, error) {
+	users, err := r.store.GetUsersByName(ctx, args.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvers := make([]*userResolver, len(users))
+
+	for i, user := range users {
+		resolvers[i] = &userResolver{user}
+	}
+	return &resolvers, nil
+}
+
+func (r *userResolver) ID() graphql.ID {
+	return graphql.ID(r.user.ID)
+}
+
+func (r *userResolver) FirstName() string {
+	return r.user.FirstName
+}
+
+func (r *userResolver) LastName() string {
+	return r.user.LastName
+}
+func (r *userResolver) Email() string {
+	return r.user.Email
+}
+
+func (r *userResolver) HomeID() *string {
+	if r.user.HomeID == nil {
+		return nil
+	}
+
+	return r.user.HomeID
+}
+
+func (r *userResolver) AvatarURL() *string {
+	return &r.user.AvatarURL
+}
+
+// func (r *userResolver) CreatedAt() string {
+// 	return r.user.CreatedAt.String()
+// }
+
+// func (r *userResolver) UpdatedAt() string {
+// 	return r.user.UpdatedAt.String()
+// }
+
 func (r *Resolver) Tasks(ctx context.Context) ([]*taskResolver, error) {
 	s, ok := session.FromContext(ctx)
 	if !ok {

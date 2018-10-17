@@ -10,6 +10,7 @@ import Task from './Task';
 import Tasks from './Tasks';
 import OnboardPart2 from './OnboardPart2';
 import Tester from './Tester';
+import SearchUsers from './SearchUsers';
 
 const App = () => (
   <Router>
@@ -27,6 +28,7 @@ const App = () => (
         <Route path="/onboarding" component={Onboard} />
         <Route path="/onboarding/:step" component={OnboardPart2} />
         <Route path="/tester" component={Tester} />
+        <Route path="/users" component={SearchUsers} />
       </div>
     </div>
   </Router>
