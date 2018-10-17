@@ -2,6 +2,9 @@
   "name": "keep-up",
   "private": true,
   "version": "1.0.0",
+  "engines": {
+    "node": "9.x"
+  },
   "scripts": {
     "build": "spec-cli build",
     "ci-check": "yarn test --runInBand",

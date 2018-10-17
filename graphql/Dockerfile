@@ -10,4 +10,7 @@ RUN apk update && apk add --no-cache bash gawk sed grep bc coreutils ca-certific
 
 COPY --from=0 /go/bin/pubapid /usr/bin/pubapid
 
+RUN curl -OL https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+RUN chmod +x wait-for-it.sh
+
 CMD ["pubapid"]
