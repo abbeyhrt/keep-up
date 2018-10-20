@@ -1,29 +1,23 @@
 FROM nginx:1.15
 
+ARG SITE=localhost
+
 RUN apt-get update \
   && apt-get install --no-install-recommends --no-install-suggests -y ca-certificates openssl
 
-WORKDIR /etc/ssl/certs
-
-# Use bash for substition in openssl commands
-# https://docs.docker.com/v17.09/engine/reference/builder/#shell
-SHELL ["/bin/bash", "-c"]
-
-# https://letsencrypt.org/docs/certificates-for-localhost/
-RUN openssl req -x509 -out keepup.local.crt -keyout keepup.local.key \
-  -newkey rsa:2048 -nodes -sha256 \
-  -subj '/CN=localhost' -extensions EXT -config <( \
-   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+# Copy over setup script. Useful for generating SSL certificates during local
+# development.
+COPY setup.sh .
+RUN ./setup.sh
+RUN rm setup.sh
 
 WORKDIR /etc/nginx
 
-COPY . .
+COPY nginx.conf .
+COPY sites-available sites-available/
+COPY sites-enabled sites-enabled/
+COPY build /usr/share/nginx/build
 
-# TODO: toggle this based on environment
-RUN ln -s /etc/nginx/sites-available/localhost.conf /etc/nginx/sites-enabled/
-
-# Used for debugging built UIs
-# COPY build /usr/share/nginx/html/localhost-build/
-# RUN ln -s /etc/nginx/sites-available/localhost-build.conf /etc/nginx/sites-enabled/
+RUN ln -s "/etc/nginx/sites-available/${SITE}.conf" /etc/nginx/sites-enabled/
 
 CMD ["nginx", "-g", "daemon off;"]
