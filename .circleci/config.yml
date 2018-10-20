@@ -67,6 +67,8 @@ jobs:
               -o 'joshblack@us.ibm.com' \
               -s keep-up
 
+            export CF_DOCKER_PASSWORD="$DOCKER_PASSWORD"
+
             ibmcloud cf push keepup-proxy \
               -f proxy/manifest.yml \
               -o "$DOCKER_IMAGE_PROXY"
