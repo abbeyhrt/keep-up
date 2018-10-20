@@ -52,7 +52,7 @@ jobs:
             DOCKER_IMAGE_GRAPHQL="keepupcompany/graphql:$TAG"
 
             docker build -t "$DOCKER_IMAGE_PROXY" ./proxy
-            docker build -t "$DOCKER_IMAGE_GRAPHQL" ./graphql
+            docker build -t "$DOCKER_IMAGE_GRAPHQL" --build-arg SITE='keepup.company' ./graphql
 
             docker push "$DOCKER_IMAGE_PROXY"
             docker push "$DOCKER_IMAGE_GRAPHQL"
