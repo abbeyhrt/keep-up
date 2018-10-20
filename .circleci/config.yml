@@ -38,7 +38,7 @@ jobs:
           name: Build and publish Docker images
           command: |
             TAG="latest"
-            if [ "${CIRCLE_TAG}" != ""]; then
+            if [ "${CIRCLE_TAG}" != "" ]; then
               TAG="${CIRCLE_TAG}"
             fi
 
