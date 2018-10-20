@@ -27,9 +27,9 @@ jobs:
           name: Run CI Check
           command: yarn ci-check
   deploy:
-    docker:
-      - image: ubuntu:14.04
     working_directory: ~/repo
+    docker:
+      - image: circleci/node:8
     steps:
       - checkout
       - setup_remote_docker:
