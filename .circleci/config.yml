@@ -28,7 +28,7 @@ jobs:
           command: yarn ci-check
   deploy:
     docker:
-      - image: circleci/ubuntu:14.04
+      - image: ubuntu:14.04
     working_directory: ~/repo
     steps:
       - checkout
