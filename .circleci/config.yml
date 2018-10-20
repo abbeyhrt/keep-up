@@ -35,17 +35,11 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
-          name: Install yarn
-          command: |
-            rm -rf ~/.yarn
-            curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.10.1
-            export PATH=$HOME/.yarn/bin:$PATH
-      - run:
-          name: Install dependencies
-          command: yarn
-      - run:
           name: Build and publish Docker images
           command: |
+            curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.10.1
+            export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+            yarn install
             yarn workspaces run build
             echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
 
