@@ -39,8 +39,11 @@ jobs:
           command: |
             curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.10.1
             export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
             yarn install
             yarn workspaces run build
+            cp -R ui/build proxy/build/
+
             echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
 
             TAG="latest"

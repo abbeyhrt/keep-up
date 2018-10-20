@@ -17,7 +17,7 @@
   "scripts": {
     "ci-check": "yarn test",
     "start": "PORT=3001 react-scripts start",
-    "build": "react-scripts build && cp -R build/ ../proxy/build",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
