@@ -16,7 +16,9 @@ WORKDIR /etc/nginx
 COPY nginx.conf .
 COPY sites-available sites-available/
 COPY sites-enabled sites-enabled/
-COPY build /usr/share/nginx/build
+# Clean up any loose files like `.gitignore`
+RUN rm -rf sites-enabled/*
+COPY build /usr/share/nginx/build/
 
 RUN ln -s "/etc/nginx/sites-available/${SITE}.conf" /etc/nginx/sites-enabled/
 

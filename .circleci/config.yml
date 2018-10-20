@@ -57,20 +57,22 @@ jobs:
             docker push "$DOCKER_IMAGE_PROXY"
             docker push "$DOCKER_IMAGE_GRAPHQL"
 
-      # - run:
-          # name: deploy staging to IBM Cloud
-          # command: |
             # Install `ibmcloud` CLI
-            # curl -fsSL https://clis.ng.bluemix.net/install/linux | sh
-            # # Login and push staging manifest
-            # ibmcloud login \
-              # --apikey $CLOUD_API_KEY \
-              # -a https://api.ng.bluemix.net \
-              # -o carbon-design-system \
-              # -s production
+            curl -fsSL https://clis.ng.bluemix.net/install/linux | sh
 
-            # ibmcloud cf add-plugin-repo CF-Community https://plugins.cloudfoundry.org
-            # ibmcloud cf install-plugin blue-green-deploy -f -r CF-Community
+            # Login and push staging manifest
+            ibmcloud login \
+              --apikey $CLOUD_API_KEY \
+              -a https://api.ng.bluemix.net \
+              -o 'joshblack@us.ibm.com' \
+              -s keep-up
+
+            ibmcloud cf add-plugin-repo CF-Community https://plugins.cloudfoundry.org
+            ibmcloud cf install-plugin blue-green-deploy -f -r CF-Community
+
+            ibmcloud cf blue-green-deploy keepup-proxy \
+              -f proxy/manifest.yml \
+              --delete-old-apps
 
             # ibmcloud cf blue-green-deploy carbon-website-staging \
               # -f .circleci/manifest.staging.yml \
