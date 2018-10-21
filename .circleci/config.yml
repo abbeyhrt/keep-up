@@ -72,6 +72,10 @@ jobs:
 
             export CF_DOCKER_PASSWORD="$DOCKER_PASSWORD"
 
+            ibmcloud cf push keepup-graphql \
+              -f graphql/manifest.yml \
+              -o "$DOCKER_IMAGE_GRAPHQL"
+
             ibmcloud cf push keepup-proxy \
               -f proxy/manifest.yml \
               -o "$DOCKER_IMAGE_PROXY"
