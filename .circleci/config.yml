@@ -42,7 +42,7 @@ jobs:
 
             yarn install
             yarn workspaces run build
-            cp -R ui/build proxy/build/
+            cp -R ui/build/* proxy/build/
 
             echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
 
