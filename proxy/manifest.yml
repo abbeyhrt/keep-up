@@ -1,0 +1,8 @@
+applications:
+- name: keepup-proxy
+  memory: 64M
+  instances: 1
+  docker:
+    username: joshblack
+  routes:
+  - route: keepup.company

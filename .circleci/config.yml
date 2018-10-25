@@ -26,11 +26,69 @@ jobs:
       - run:
           name: Run CI Check
           command: yarn ci-check
+  deploy:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build and publish Docker images
+          command: |
+            curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.10.1
+            export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+            yarn install
+            yarn workspaces run build
+            cp -R ui/build/* proxy/build/
+
+            echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
+
+            TAG="latest"
+            if [ "${CIRCLE_TAG}" != "" ]; then
+              TAG="${CIRCLE_TAG}"
+            fi
+
+            DOCKER_IMAGE_PROXY="keepupcompany/proxy:$TAG"
+            DOCKER_IMAGE_GRAPHQL="keepupcompany/graphql:$TAG"
+
+            docker build -t "$DOCKER_IMAGE_PROXY" --build-arg SITE='keepup.company' ./proxy
+            docker build -t "$DOCKER_IMAGE_GRAPHQL" ./graphql
+
+            docker push "$DOCKER_IMAGE_PROXY"
+            docker push "$DOCKER_IMAGE_GRAPHQL"
+
+            # Install `ibmcloud` CLI
+            curl -fsSL https://clis.ng.bluemix.net/install/linux | sh
+
+            # Login and push staging manifest
+            ibmcloud login \
+              --apikey $CLOUD_API_KEY \
+              -a https://api.ng.bluemix.net \
+              -o 'joshblack@us.ibm.com' \
+              -s keep-up
+
+            export CF_DOCKER_PASSWORD="$DOCKER_PASSWORD"
+
+            ibmcloud cf push keepup-graphql \
+              -f graphql/manifest.yml \
+              -o "$DOCKER_IMAGE_GRAPHQL"
+
+            ibmcloud cf push keepup-proxy \
+              -f proxy/manifest.yml \
+              -o "$DOCKER_IMAGE_PROXY"
 workflows:
   version: 2
-  graphql:
+  latest:
     jobs:
       - test-graphql
-  ui:
-    jobs:
       - test-ui
+      - deploy:
+          requires:
+            - test-graphql
+            - test-ui
+          filters:
+            branches:
+              only: master
