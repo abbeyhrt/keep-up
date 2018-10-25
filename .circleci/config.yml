@@ -83,13 +83,12 @@ workflows:
   version: 2
   latest:
     jobs:
-      # - test-graphql
-      # - test-ui
-      - deploy
-      # - deploy:
-          # requires:
-            # - test-graphql
-            # - test-ui
-          # filters:
-            # branches:
-              # only: master
+      - test-graphql
+      - test-ui
+      - deploy:
+          requires:
+            - test-graphql
+            - test-ui
+          filters:
+            branches:
+              only: master
