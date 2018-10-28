@@ -9,14 +9,17 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 )
 
+// NewStoreFromClient creates a new SQLstore
 func NewStoreFromClient(db *sql.DB) *SQLStore {
 	return &SQLStore{db}
 }
 
+//SQLStore holds all of the functions that we use on the store
 type SQLStore struct {
 	db *sql.DB
 }
 
+// CreateSession saves a user's session in the DB to make viewer info more accessible.
 func (s *SQLStore) CreateSession(ctx context.Context, userID string) (models.Session, error) {
 	session := models.Session{}
 	err := s.db.QueryRowContext(
@@ -33,6 +36,7 @@ func (s *SQLStore) CreateSession(ctx context.Context, userID string) (models.Ses
 
 }
 
+// GetSessionByID retrieves a user's current session by its ID
 func (s *SQLStore) GetSessionByID(ctx context.Context, id string) (models.Session, error) {
 	session := models.Session{}
 	err := s.db.QueryRowContext(ctx, sqlGetSessionByID, id).Scan(
@@ -42,6 +46,7 @@ func (s *SQLStore) GetSessionByID(ctx context.Context, id string) (models.Sessio
 	return session, err
 }
 
+// GetUserByID finds a user by their ID
 func (s *SQLStore) GetUserByID(ctx context.Context, id string) (models.User, error) {
 	u := models.User{}
 	err := s.db.QueryRowContext(ctx, sqlGetUserByID, id).Scan(
@@ -60,6 +65,7 @@ func (s *SQLStore) GetUserByID(ctx context.Context, id string) (models.User, err
 	return u, err
 }
 
+// GetOrCreateUser finds a user upon logging in or creates the user if that user doesn't exist
 func (s *SQLStore) GetOrCreateUser(
 	ctx context.Context,
 	u *models.User,
@@ -90,6 +96,7 @@ func (s *SQLStore) GetOrCreateUser(
 	return err
 }
 
+// CreateUser creates a user
 func (s *SQLStore) CreateUser(
 	ctx context.Context,
 	user models.User,
@@ -154,6 +161,22 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 	return home, nil
 }
 
+// InsertHomeID inserts the homeID into the respective column of a user, when the home has already been created
+func (s *SQLStore) InsertHomeID(ctx context.Context, userID string, homeID string) error {
+	_, err := s.db.ExecContext(
+		ctx,
+		sqlInsertHomeID,
+		homeID,
+		userID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //GetHomeByID used in handlers package
 func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home, error) {
 	h := models.Home{}
@@ -166,6 +189,7 @@ func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home
 	return h, err
 }
 
+// CreateTask creates a task and associates it with the user who made it
 func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error) {
 	err := s.db.QueryRowContext(
 		ctx,
@@ -189,6 +213,7 @@ func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID stri
 
 }
 
+// GetTasksByUserID returns all of a user's tasks
 func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error) {
 	rows, err := s.db.QueryContext(ctx, sqlGetTasksByUserID, userID)
 	if err != nil {
@@ -222,6 +247,7 @@ func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]model
 	return tasks, nil
 }
 
+// GetTaskByID searched the db for a task by its ID
 func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, error) {
 	t := models.Task{}
 	err := s.db.QueryRowContext(
@@ -243,6 +269,7 @@ func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, err
 	return t, err
 }
 
+// GetUsersByName searches the db for a user by an input name
 func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
 	rows, err := s.db.QueryContext(ctx, sqlGetUsersByName, name)
 	if err != nil {

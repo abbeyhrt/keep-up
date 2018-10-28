@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -64,7 +65,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	).Methods("GET")
 
 	s := r.PathPrefix("/").Subrouter()
-	//s.HandleFunc("/users", GetUsersHandler(ctx, store))
+	s.HandleFunc("/insert", InsertHomeHandler(ctx, store))
 	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
 	s.Handle("/graphql", GraphQLHandler(store))
 	s.Handle("/graphiql", GraphiqlHandler())
@@ -337,16 +338,18 @@ func HandleGoogleCallback(
 	}
 }
 
-// func GetUsersHandler(ctx context.Context, store database.DAL) func(w http.ResponseWriter, r *http.Request) {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		name := "Josh Black"
+func InsertHomeHandler(ctx context.Context, store database.DAL) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		homeID := "46bc0280-b566-4a35-8ec2-fd6f5b362c46"
 
-// 		res, err := store.GetUsersByName(ctx, name)
-// 		if err != nil {
-// 			log.Error(err)
-// 			return
-// 		}
+		userID := "3deb6b87-c5c2-423f-87b8-d8baaa815f25"
 
-// 		fmt.Fprintf(w, "these are the error: %v", res)
-// 	}
-// }
+		err := store.InsertHomeID(ctx, userID, homeID)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		fmt.Fprintf(w, "these are the error: %v", err)
+	}
+}

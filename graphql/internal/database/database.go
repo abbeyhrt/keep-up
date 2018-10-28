@@ -9,6 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// DAL is the interface we are using to serve the store functions everywhere
 type DAL interface {
 	CreateSession(ctx context.Context, userID string) (models.Session, error)
 	GetSessionByID(ctx context.Context, id string) (models.Session, error)
@@ -21,8 +22,10 @@ type DAL interface {
 	CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error)
 	GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error)
 	GetTaskByID(ctx context.Context, id string) (models.Task, error)
+	InsertHomeID(ctx context.Context, userID string, homeID string) error
 }
 
+// New creates a new DAL
 func New(ctx context.Context, connStr string) (DAL, error) {
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

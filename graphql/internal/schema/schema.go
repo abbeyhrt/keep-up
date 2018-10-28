@@ -23,6 +23,10 @@ var Schema = `
 			title: String!,
 			description: String!,
 			): Task!
+		insertHomeID(
+			homeID: String!,
+			userID: String!,
+			): Home!
 	}
 
 	type Viewer {

@@ -21,8 +21,9 @@ const FindUserQuery = props => (
         console.log(error);
         return <p>error</p>;
       }
+      console.log(data);
       const users = data.users;
-      return users.first_name;
+      return users.map(user => user.first_name);
     }}
   </Query>
 );

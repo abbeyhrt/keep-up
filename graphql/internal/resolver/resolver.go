@@ -283,6 +283,26 @@ func (r *Resolver) CreateHome(ctx context.Context, args *struct {
 	return &homeResolver{h}, nil
 }
 
+// InsertHomeID gives a viewer the ability to add other users to their home
+func (r *Resolver) InsertHomeID(ctx context.Context, args *struct {
+	UserID string
+	HomeID string
+}) (*homeResolver, error) {
+	err := r.store.InsertHomeID(ctx, args.UserID, args.HomeID)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	h, err := r.store.GetHomeByID(ctx, &args.HomeID)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return &homeResolver{h}, nil
+}
+
 type homeResolver struct {
 	home models.Home
 }
