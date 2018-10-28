@@ -117,6 +117,9 @@ func (s *SQLStore) CreateUser(
 	return user, nil
 }
 
+// func (s *SQLStore) UpdateUserById() () {
+// }
+
 // CreateHome function that will be used in the handlers
 func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error) {
 	err := s.db.QueryRowContext(
