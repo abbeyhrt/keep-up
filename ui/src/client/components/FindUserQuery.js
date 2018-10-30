@@ -1,6 +1,7 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
+import AddUserButton from './AddUserButton';
 
 const GET_USER_BY_NAME = gql`
   query Users($name: String!) {
@@ -23,7 +24,9 @@ const FindUserQuery = props => (
       }
       console.log(data);
       const users = data.users;
-      return users.map(user => user.first_name);
+      return users.map(user => (
+        <AddUserButton userID={data.user.id} homeID="" />
+      ));
     }}
   </Query>
 );

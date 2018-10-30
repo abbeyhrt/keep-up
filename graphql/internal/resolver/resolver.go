@@ -19,6 +19,8 @@ func New(store database.DAL) *Resolver {
 	return &Resolver{store}
 }
 
+// ----------------------- VIEWER RESOLVERS ----------------------------- //
+
 func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 
 	s, ok := session.FromContext(ctx)
@@ -95,7 +97,7 @@ func (r *viewerResolver) Email() string {
 }
 
 func (r *viewerResolver) AvatarURL() *string {
-	return &r.user.AvatarURL
+	return r.user.AvatarURL
 }
 
 func (r *viewerResolver) CreatedAt() string {
@@ -105,6 +107,8 @@ func (r *viewerResolver) CreatedAt() string {
 func (r *viewerResolver) UpdatedAt() string {
 	return r.user.UpdatedAt.String()
 }
+
+// ----------------------- USER RESOLVERS ----------------------------- //
 
 type userResolver struct {
 	user models.User
@@ -124,6 +128,17 @@ func (r *Resolver) Users(ctx context.Context, args *struct {
 		resolvers[i] = &userResolver{user}
 	}
 	return &resolvers, nil
+}
+
+// UpdateUser updates all fields on the user and returns the userResolver with that user
+func (r *Resolver) UpdateUser(ctx context.Context, args *struct {
+	User models.User
+}) (*userResolver, error) {
+	err := r.store.UpdateUser(ctx, args.User)
+	if err != nil {
+		return nil, err
+	}
+	return &userResolver{args.User}, nil
 }
 
 func (r *userResolver) ID() graphql.ID {
@@ -150,7 +165,7 @@ func (r *userResolver) HomeID() *string {
 }
 
 func (r *userResolver) AvatarURL() *string {
-	return &r.user.AvatarURL
+	return r.user.AvatarURL
 }
 
 // func (r *userResolver) CreatedAt() string {
@@ -160,6 +175,8 @@ func (r *userResolver) AvatarURL() *string {
 // func (r *userResolver) UpdatedAt() string {
 // 	return r.user.UpdatedAt.String()
 // }
+
+// ----------------------- TASK RESOLVERS ----------------------------- //
 
 func (r *Resolver) Tasks(ctx context.Context) ([]*taskResolver, error) {
 	s, ok := session.FromContext(ctx)
@@ -243,6 +260,8 @@ func (r *taskResolver) UpdatedAt() string {
 	return r.task.UpdatedAt.String()
 }
 
+// ----------------------- HOME RESOLVERS ----------------------------- //
+
 func (r *Resolver) Home(ctx context.Context) (*homeResolver, error) {
 	s, ok := session.FromContext(ctx)
 	if !ok {
@@ -275,26 +294,6 @@ func (r *Resolver) CreateHome(ctx context.Context, args *struct {
 	}
 
 	h, err := r.store.CreateHome(ctx, home, s.User.ID)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	return &homeResolver{h}, nil
-}
-
-// InsertHomeID gives a viewer the ability to add other users to their home
-func (r *Resolver) InsertHomeID(ctx context.Context, args *struct {
-	UserID string
-	HomeID string
-}) (*homeResolver, error) {
-	err := r.store.InsertHomeID(ctx, args.UserID, args.HomeID)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	h, err := r.store.GetHomeByID(ctx, &args.HomeID)
 	if err != nil {
 		log.Error(err)
 		return nil, err

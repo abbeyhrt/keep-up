@@ -65,7 +65,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	).Methods("GET")
 
 	s := r.PathPrefix("/").Subrouter()
-	s.HandleFunc("/insert", InsertHomeHandler(ctx, store))
+	s.HandleFunc("/update", Update(ctx, store))
 	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
 	s.Handle("/graphql", GraphQLHandler(store))
 	s.Handle("/graphiql", GraphiqlHandler())
@@ -293,7 +293,7 @@ func HandleGoogleCallback(
 			FirstName:  info.GivenName,
 			LastName:   info.FamilyName,
 			Email:      info.Email,
-			AvatarURL:  info.Picture,
+			AvatarURL:  &info.Picture,
 			Provider:   "google",
 			ProviderID: info.ID,
 		}
@@ -338,13 +338,23 @@ func HandleGoogleCallback(
 	}
 }
 
-func InsertHomeHandler(ctx context.Context, store database.DAL) func(w http.ResponseWriter, r *http.Request) {
+func Update(ctx context.Context, store database.DAL) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		homeID := "46bc0280-b566-4a35-8ec2-fd6f5b362c46"
 
 		userID := "3deb6b87-c5c2-423f-87b8-d8baaa815f25"
+		user, err := store.GetUserByID(ctx, userID)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		homeID := "cea8602e-d597-3a1c-95fa-9726c37f8b76"
 
-		err := store.InsertHomeID(ctx, userID, homeID)
+		user.HomeID = &homeID
+		user.FirstName = "Josh"
+		user.LastName = "Black"
+		user.Email = "josh@josh.black"
+
+		err = store.UpdateUser(ctx, user)
 		if err != nil {
 			log.Error(err)
 			return

@@ -23,10 +23,9 @@ var Schema = `
 			title: String!,
 			description: String!,
 			): Task!
-		insertHomeID(
-			homeID: String!,
-			userID: String!,
-			): Home!
+		updateUser(
+			user: UserInput!
+			): User!
 	}
 
 	type Viewer {
@@ -68,4 +67,12 @@ var Schema = `
 		avatarURL: String
 	}
 
+	input UserInput {
+		id: ID!
+		email: String!
+		home_id: String
+		first_name: String!
+		last_name: String!
+		avatarURL: String
+	}
 `

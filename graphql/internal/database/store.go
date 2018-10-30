@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
 	"github.com/opentracing/opentracing-go/log"
@@ -148,26 +149,56 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 		return home, fmt.Errorf("error creating home: %v", err)
 	}
 
-	_, err = s.db.ExecContext(
-		ctx,
-		sqlInsertHomeID,
-		home.ID,
-		userID,
-	)
+	user, err := s.GetUserByID(ctx, userID)
 	if err != nil {
-		return home, fmt.Errorf("error creating home: %v", err)
+		fmt.Println(err)
+		return home, err
 	}
+
+	user.HomeID = &home.ID
+
+	err = s.UpdateUser(ctx, user)
+	if err != nil {
+		fmt.Println(err)
+		return home, err
+	}
+
+	// _, err = s.db.ExecContext(
+	// 	ctx,
+	// 	sqlUpdateUser,
+	// 	[]byte("home_id"),
+	// 	home.ID,
+	// 	[]byte("id"),
+	// 	userID,
+	// )
+	// if err != nil {
+	// 	return home, fmt.Errorf("error creating home: %v", err)
+	// }
 
 	return home, nil
 }
 
-// InsertHomeID inserts the homeID into the respective column of a user, when the home has already been created
-func (s *SQLStore) InsertHomeID(ctx context.Context, userID string, homeID string) error {
-	_, err := s.db.ExecContext(
+// Update updates any value in any table based on any identifier.
+func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) error {
+	user.UpdatedAt = time.Now()
+	err := s.db.QueryRowContext(
 		ctx,
-		sqlInsertHomeID,
-		homeID,
-		userID,
+		sqlUpdateUser,
+		user.FirstName,
+		user.LastName,
+		user.HomeID,
+		user.Email,
+		user.AvatarURL,
+		user.UpdatedAt,
+		user.ID,
+	).Scan(
+		&user.FirstName,
+		&user.LastName,
+		&user.HomeID,
+		&user.Email,
+		&user.AvatarURL,
+		&user.UpdatedAt,
+		&user.ID,
 	)
 
 	if err != nil {
@@ -176,6 +207,22 @@ func (s *SQLStore) InsertHomeID(ctx context.Context, userID string, homeID strin
 
 	return nil
 }
+
+// InsertHomeID inserts the homeID into the respective column of a user, when the home has already been created
+// func (s *SQLStore) InsertHomeID(ctx context.Context, userID string, homeID string) error {
+// 	_, err := s.db.ExecContext(
+// 		ctx,
+// 		sqlInsertHomeID,
+// 		homeID,
+// 		userID,
+// 	)
+
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
 
 //GetHomeByID used in handlers package
 func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home, error) {
@@ -347,10 +394,16 @@ const (
 	RETURNING id, name, description, avatar_url, created_at, updated_at
 	`
 
-	sqlInsertHomeID = `
+	sqlUpdateUser = `
 	UPDATE users
-	SET home_id = $1
-	WHERE id = $2
+	SET first_name = $1,
+			last_name = $2,
+			home_id = $3,
+			email = $4,
+			avatar_url = $5,
+			updated_at = $6
+	WHERE id = $7
+	RETURNING id, first_name, last_name, email, avatar_url, created_at, updated_at
 	`
 
 	sqlGetHomeByID = `

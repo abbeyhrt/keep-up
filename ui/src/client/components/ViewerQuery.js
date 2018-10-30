@@ -15,13 +15,13 @@ const VIEWER_QUERY = gql`
 `;
 
 class ViewerQuery extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.state = {
-  //     userID: '',
-  //     homeID: ''
-  //   };
-  // }
+  constructor(props) {
+    super(props);
+    this.state = {
+      userID: '',
+      homeID: '',
+    };
+  }
 
   render() {
     return (
@@ -38,12 +38,7 @@ class ViewerQuery extends React.Component {
               );
             }
             if (data) {
-              return (
-                <AddUserButton
-                  userID={data.viewer.id}
-                  homeID={data.viewer.home.id}
-                />
-              );
+              return <AddUserButton homeID={data.viewer.home.id} />;
             }
             return nil;
           }}
