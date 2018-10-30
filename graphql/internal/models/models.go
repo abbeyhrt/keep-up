@@ -5,7 +5,8 @@ import "time"
 //User =`json:"id"` thing is a struct tag and is optional
 type User struct {
 	ID         string    `json:"id"`
-	Name       string    `json:"name"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
 	HomeID     *string   `json:"home_id"`
 	Email      string    `json:"email"`
 	AvatarURL  string    `json:"avatar_url"`
