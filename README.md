@@ -17,8 +17,8 @@
     - [Starting the GraphQL service](#starting-the-graphql-service)
     - [Local `.env` file](#local-env-file)
   - [Troubleshooting](#troubleshooting)
-      - [What if I receive a `502 Bad Gateway` response when using the proxy?](#what-if-i-receive-a-502-bad-gateway-response-when-using-the-proxy)
-      - [What if I receive a `400 Bad Request` response when using the proxy?](#what-if-i-receive-a-400-bad-request-response-when-using-the-proxy)
+    - [What if I receive a `502 Bad Gateway` response when using the proxy?](#what-if-i-receive-a-502-bad-gateway-response-when-using-the-proxy)
+    - [What if I receive a `400 Bad Request` response when using the proxy?](#what-if-i-receive-a-400-bad-request-response-when-using-the-proxy)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -26,11 +26,11 @@
 
 `keep-up` requires the following tools and technologies for local development:
 
-* Node.js recommended to use `nvm` to install `v10`
-* Yarn, alternative to `npm`. Can use Homebrew for installation with the
+- Node.js recommended to use `nvm` to install `v10`
+- Yarn, alternative to `npm`. Can use Homebrew for installation with the
   `--without-node` flag
-* Golang, can use Homebrew for installation
-* [Docker](https://docs.docker.com/docker-for-mac/install/) for local development
+- Golang, can use Homebrew for installation
+- [Docker](https://docs.docker.com/docker-for-mac/install/) for local development
 
 After installing the software above, you should be ready to go. By default,
 you'll most likely want the `postgres` and `proxy` services running. `postgres`
