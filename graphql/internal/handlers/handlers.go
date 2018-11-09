@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -24,7 +23,7 @@ type googleUserInfo struct {
 	ID         string `json:"id"`
 	Email      string `json:"email"`
 	GivenName  string `json:"given_name"`
-	FamilyName string `json:family_name`
+	FamilyName string `json:"family_name`
 	Picture    string `json:"picture"`
 }
 
@@ -68,7 +67,6 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 	s.Use(SessionMiddleware(ctx, store, cfg.CookieSecret))
 	s.Handle("/graphql", GraphQLHandler(store))
 	s.Handle("/graphiql", GraphiqlHandler())
-	s.HandleFunc("/users", GetUserNameHandler(ctx, store))
 	s.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
@@ -328,19 +326,5 @@ func HandleGoogleCallback(
 		}
 
 		http.Redirect(w, r, "/", http.StatusSeeOther)
-	}
-}
-
-func GetUserNameHandler(ctx context.Context, store database.DAL) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		name := "Ab"
-
-		users, err := store.GetUsersByName(ctx, name)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		fmt.Fprintf(w, "this is the %v", users)
 	}
 }

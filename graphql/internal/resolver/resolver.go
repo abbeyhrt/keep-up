@@ -282,7 +282,6 @@ func (r *Resolver) CreateHome(ctx context.Context, args *struct {
 	h, err := r.store.CreateHome(ctx, home, s.User.ID)
 	if err != nil {
 		fmt.Println(err)
-		log.Error(err)
 		return nil, err
 	}
 
