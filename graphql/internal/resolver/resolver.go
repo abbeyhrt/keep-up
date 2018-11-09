@@ -11,6 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Resolver contains all the methods to be resolved and gives them access to the store
 type Resolver struct {
 	store database.DAL
 }
@@ -19,6 +20,7 @@ func New(store database.DAL) *Resolver {
 	return &Resolver{store}
 }
 
+// Viewer gathers info on the currently logged in user
 func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 
 	s, ok := session.FromContext(ctx)
@@ -89,6 +91,7 @@ type userResolver struct {
 	user models.User
 }
 
+// Users gathers a colleciton os users based on their name
 func (r *Resolver) Users(ctx context.Context, args *struct {
 	Name string
 }) (*[]*userResolver, error) {
