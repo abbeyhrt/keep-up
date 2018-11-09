@@ -1,7 +1,7 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { Mutation } from 'react-apollo';
-import { withRouter } from 'react-router';
+//import { withRouter } from 'react-router';
 
 const ADD_HOME = gql`
   mutation CreateHome($name: String!, $description: String!) {
@@ -31,7 +31,7 @@ class AddHome extends React.Component {
       },
     });
 
-    this.props.history.push('/home');
+    //this.props.history.push('/home');
   };
 
   handleOnChange = inputName => event => {
@@ -71,4 +71,5 @@ class AddHome extends React.Component {
   }
 }
 
-export default withRouter(AddHome);
+// J'ai effacé les mots WithRouter()
+export default AddHome;

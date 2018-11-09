@@ -129,6 +129,66 @@ func (s *SQLStore) CreateUser(
 	return user, nil
 }
 
+func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
+
+	rows, err := s.db.QueryContext(ctx, sqlGetUsersByName, name)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	defer rows.Close()
+	var users []models.User
+
+	for rows.Next() {
+		u := models.User{}
+		err := rows.Scan(
+			&u.ID,
+			&u.FirstName,
+			&u.LastName,
+			&u.HomeID,
+			&u.Email,
+			&u.AvatarURL,
+		)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		users = append(users, u)
+	}
+
+	return users, nil
+}
+
+// UpdateUser updates any value in any table based on any identifier.
+func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) error {
+	user.UpdatedAt = time.Now()
+	err := s.db.QueryRowContext(
+		ctx,
+		sqlUpdateUser,
+		user.FirstName,
+		user.LastName,
+		user.HomeID,
+		user.Email,
+		user.AvatarURL,
+		user.UpdatedAt,
+		user.ID,
+	).Scan(
+		&user.FirstName,
+		&user.LastName,
+		&user.HomeID,
+		&user.Email,
+		&user.AvatarURL,
+		&user.UpdatedAt,
+		&user.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // CreateHome function that will be used in the handlers
 func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error) {
 	err := s.db.QueryRowContext(
@@ -146,7 +206,8 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 		&home.UpdatedAt,
 	)
 	if err != nil {
-		return home, fmt.Errorf("error creating home: %v", err)
+		fmt.Printf("error creating home: %s", err)
+		return home, err
 	}
 
 	user, err := s.GetUserByID(ctx, userID)
@@ -176,36 +237,6 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 	// }
 
 	return home, nil
-}
-
-// Update updates any value in any table based on any identifier.
-func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) error {
-	user.UpdatedAt = time.Now()
-	err := s.db.QueryRowContext(
-		ctx,
-		sqlUpdateUser,
-		user.FirstName,
-		user.LastName,
-		user.HomeID,
-		user.Email,
-		user.AvatarURL,
-		user.UpdatedAt,
-		user.ID,
-	).Scan(
-		&user.FirstName,
-		&user.LastName,
-		&user.HomeID,
-		&user.Email,
-		&user.AvatarURL,
-		&user.UpdatedAt,
-		&user.ID,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // InsertHomeID inserts the homeID into the respective column of a user, when the home has already been created
@@ -317,38 +348,38 @@ func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, err
 }
 
 // GetUsersByName searches the db for a user by an input name
-func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
-	rows, err := s.db.QueryContext(ctx, sqlGetUsersByName, name)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
+// func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
+// 	rows, err := s.db.QueryContext(ctx, sqlGetUsersByName, name)
+// 	if err != nil {
+// 		log.Error(err)
+// 		return nil, err
+// 	}
 
-	defer rows.Close()
+// 	defer rows.Close()
 
-	var users []models.User
+// 	var users []models.User
 
-	for rows.Next() {
-		u := models.User{}
+// 	for rows.Next() {
+// 		u := models.User{}
 
-		err := rows.Scan(
-			&u.ID,
-			&u.FirstName,
-			&u.LastName,
-			&u.HomeID,
-			&u.Email,
-			&u.AvatarURL,
-		)
-		if err != nil {
-			log.Error(err)
-			return nil, err
-		}
+// 		err := rows.Scan(
+// 			&u.ID,
+// 			&u.FirstName,
+// 			&u.LastName,
+// 			&u.HomeID,
+// 			&u.Email,
+// 			&u.AvatarURL,
+// 		)
+// 		if err != nil {
+// 			log.Error(err)
+// 			return nil, err
+// 		}
 
-		users = append(users, u)
-	}
+// 		users = append(users, u)
+// 	}
 
-	return users, nil
-}
+// 	return users, nil
+// }
 
 const (
 	sqlCreateUser = `

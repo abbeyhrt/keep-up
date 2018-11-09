@@ -83,6 +83,66 @@ func (r *viewerResolver) Home() *homeResolver {
 	return &homeResolver{*r.home}
 }
 
+// ----------------------- USER RESOLVERS ----------------------------- //
+
+type userResolver struct {
+	user models.User
+}
+
+func (r *Resolver) Users(ctx context.Context, args *struct {
+	Name string
+}) (*[]*userResolver, error) {
+	users, err := r.store.GetUsersByName(ctx, args.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvers := make([]*userResolver, len(users))
+
+	for i, user := range users {
+		resolvers[i] = &userResolver{user}
+	}
+	return &resolvers, nil
+}
+
+// UpdateUser updates all fields on the user and returns the userResolver with that user
+func (r *Resolver) UpdateUser(ctx context.Context, args *struct {
+	User models.User
+}) (*userResolver, error) {
+	err := r.store.UpdateUser(ctx, args.User)
+	if err != nil {
+		return nil, err
+	}
+	return &userResolver{args.User}, nil
+}
+
+func (r *userResolver) ID() graphql.ID {
+	return graphql.ID(r.user.ID)
+}
+
+func (r *userResolver) FirstName() string {
+	return r.user.FirstName
+}
+
+func (r *userResolver) LastName() string {
+	return r.user.LastName
+}
+func (r *userResolver) Email() string {
+	return r.user.Email
+}
+
+func (r *userResolver) HomeID() *string {
+	if r.user.HomeID == nil {
+		return nil
+	}
+
+	return r.user.HomeID
+}
+
+func (r *userResolver) AvatarURL() *string {
+	return &r.user.AvatarURL
+}
+
 func (r *viewerResolver) Tasks() []*taskResolver {
 	if r.tasks == nil {
 		return nil
@@ -221,6 +281,7 @@ func (r *Resolver) CreateHome(ctx context.Context, args *struct {
 
 	h, err := r.store.CreateHome(ctx, home, s.User.ID)
 	if err != nil {
+		fmt.Println(err)
 		log.Error(err)
 		return nil, err
 	}

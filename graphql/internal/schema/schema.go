@@ -54,4 +54,23 @@ var Schema = `
 		updatedAt: String!
 	}
 
+	type User {
+		id: ID!
+		email: String!
+		home_id: String
+		first_name: String!
+		last_name: String!
+		avatarURL: String
+	}
+
+	input UserInput {
+		id: ID!
+		email: String!
+		home_id: String
+		first_name: String!
+		last_name: String!
+		avatarURL: String
+	}
+
+
 `
