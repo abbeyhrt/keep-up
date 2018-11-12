@@ -2,7 +2,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/database"
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
@@ -43,7 +42,7 @@ func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 
 	tasks, err := r.store.GetTasksByUserID(ctx, s.User.ID)
 	if err != nil {
-		fmt.Println(err)
+		log.Errorf("This is the %s: ", err)
 		return nil, err
 	}
 
@@ -284,7 +283,7 @@ func (r *Resolver) CreateHome(ctx context.Context, args *struct {
 
 	h, err := r.store.CreateHome(ctx, home, s.User.ID)
 	if err != nil {
-		fmt.Println(err)
+		log.Errorf("This is the %s: ", err)
 		return nil, err
 	}
 

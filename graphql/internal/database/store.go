@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
-	"github.com/opentracing/opentracing-go/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // NewStoreFromClient creates a new SQLstore
@@ -133,7 +133,7 @@ func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.Us
 
 	rows, err := s.db.QueryContext(ctx, sqlGetUsersByName, name)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("This is the %s: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -150,7 +150,7 @@ func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.Us
 			&u.AvatarURL,
 		)
 		if err != nil {
-			log.Error(err)
+			log.Errorf("This is the %s: ", err)
 			return nil, err
 		}
 
@@ -184,6 +184,7 @@ func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) error {
 	)
 
 	if err != nil {
+		log.Errorf("This is the %s: ", err)
 		return err
 	}
 	return nil
@@ -206,13 +207,13 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 		&home.UpdatedAt,
 	)
 	if err != nil {
-		fmt.Printf("error creating home: %s", err)
+		log.Errorf("error creating home: %s", err)
 		return home, err
 	}
 
 	user, err := s.GetUserByID(ctx, userID)
 	if err != nil {
-		fmt.Println(err)
+		log.Errorf("This is the %s: ", err)
 		return home, err
 	}
 
@@ -220,40 +221,12 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 
 	err = s.UpdateUser(ctx, user)
 	if err != nil {
-		fmt.Println(err)
+		log.Errorf("This is the %s: ", err)
 		return home, err
 	}
 
-	// _, err = s.db.ExecContext(
-	// 	ctx,
-	// 	sqlUpdateUser,
-	// 	[]byte("home_id"),
-	// 	home.ID,
-	// 	[]byte("id"),
-	// 	userID,
-	// )
-	// if err != nil {
-	// 	return home, fmt.Errorf("error creating home: %v", err)
-	// }
-
 	return home, nil
 }
-
-// InsertHomeID inserts the homeID into the respective column of a user, when the home has already been created
-// func (s *SQLStore) InsertHomeID(ctx context.Context, userID string, homeID string) error {
-// 	_, err := s.db.ExecContext(
-// 		ctx,
-// 		sqlInsertHomeID,
-// 		homeID,
-// 		userID,
-// 	)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
 
 //GetHomeByID used in handlers package
 func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home, error) {
@@ -284,7 +257,8 @@ func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID stri
 		&task.UpdatedAt,
 	)
 	if err != nil {
-		return task, fmt.Errorf("error creating home: %v", err)
+		log.Errorf("This is the %s: ", err)
+		return task, err
 	}
 
 	return task, nil
@@ -315,7 +289,7 @@ func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]model
 			&t.UpdatedAt,
 		)
 		if err != nil {
-			log.Error(err)
+			log.Errorf("This is the %s: ", err)
 			return nil, err
 		}
 
@@ -339,47 +313,12 @@ func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, err
 		&t.Description,
 	)
 	if err != nil {
-		log.Error(err)
-		fmt.Printf("this is the error from DB: %s", err)
+		log.Errorf("This is the %s: ", err)
 		return t, err
 	}
 
 	return t, err
 }
-
-// GetUsersByName searches the db for a user by an input name
-// func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
-// 	rows, err := s.db.QueryContext(ctx, sqlGetUsersByName, name)
-// 	if err != nil {
-// 		log.Error(err)
-// 		return nil, err
-// 	}
-
-// 	defer rows.Close()
-
-// 	var users []models.User
-
-// 	for rows.Next() {
-// 		u := models.User{}
-
-// 		err := rows.Scan(
-// 			&u.ID,
-// 			&u.FirstName,
-// 			&u.LastName,
-// 			&u.HomeID,
-// 			&u.Email,
-// 			&u.AvatarURL,
-// 		)
-// 		if err != nil {
-// 			log.Error(err)
-// 			return nil, err
-// 		}
-
-// 		users = append(users, u)
-// 	}
-
-// 	return users, nil
-// }
 
 const (
 	sqlCreateUser = `
