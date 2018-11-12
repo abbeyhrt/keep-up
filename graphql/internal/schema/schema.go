@@ -26,7 +26,8 @@ var Schema = `
 
 	type Viewer {
 		id: ID!
-		name: String!
+		first_name: String!
+		last_name: String!
 		home: Home
 		tasks: [Task!]!
 		email: String!
@@ -52,5 +53,24 @@ var Schema = `
 		createdAt: String!
 		updatedAt: String!
 	}
+
+	type User {
+		id: ID!
+		email: String!
+		home_id: String
+		first_name: String!
+		last_name: String!
+		avatarURL: String
+	}
+
+	input UserInput {
+		id: ID!
+		email: String!
+		home_id: String
+		first_name: String!
+		last_name: String!
+		avatarURL: String
+	}
+
 
 `

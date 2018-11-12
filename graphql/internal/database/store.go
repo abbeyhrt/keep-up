@@ -4,19 +4,23 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
-	"github.com/opentracing/opentracing-go/log"
+	log "github.com/sirupsen/logrus"
 )
 
+// NewStoreFromClient creates a new SQLstore
 func NewStoreFromClient(db *sql.DB) *SQLStore {
 	return &SQLStore{db}
 }
 
+//SQLStore holds all of the functions that we use on the store
 type SQLStore struct {
 	db *sql.DB
 }
 
+// CreateSession saves a user's session in the DB to make viewer info more accessible.
 func (s *SQLStore) CreateSession(ctx context.Context, userID string) (models.Session, error) {
 	session := models.Session{}
 	err := s.db.QueryRowContext(
@@ -33,6 +37,7 @@ func (s *SQLStore) CreateSession(ctx context.Context, userID string) (models.Ses
 
 }
 
+// GetSessionByID retrieves a user's current session by its ID
 func (s *SQLStore) GetSessionByID(ctx context.Context, id string) (models.Session, error) {
 	session := models.Session{}
 	err := s.db.QueryRowContext(ctx, sqlGetSessionByID, id).Scan(
@@ -42,11 +47,13 @@ func (s *SQLStore) GetSessionByID(ctx context.Context, id string) (models.Sessio
 	return session, err
 }
 
+// GetUserByID finds a user by their ID
 func (s *SQLStore) GetUserByID(ctx context.Context, id string) (models.User, error) {
 	u := models.User{}
 	err := s.db.QueryRowContext(ctx, sqlGetUserByID, id).Scan(
 		&u.ID,
-		&u.Name,
+		&u.FirstName,
+		&u.LastName,
 		&u.HomeID,
 		&u.Email,
 		&u.AvatarURL,
@@ -59,13 +66,15 @@ func (s *SQLStore) GetUserByID(ctx context.Context, id string) (models.User, err
 	return u, err
 }
 
+// GetOrCreateUser finds a user upon logging in or creates the user if that user doesn't exist
 func (s *SQLStore) GetOrCreateUser(
 	ctx context.Context,
 	u *models.User,
 ) error {
 	err := s.db.QueryRowContext(ctx, sqlGetUserByProvider, u.Provider, u.ProviderID).Scan(
 		&u.ID,
-		&u.Name,
+		&u.FirstName,
+		&u.LastName,
 		&u.HomeID,
 		&u.Email,
 		&u.AvatarURL,
@@ -88,6 +97,7 @@ func (s *SQLStore) GetOrCreateUser(
 	return err
 }
 
+// CreateUser creates a user
 func (s *SQLStore) CreateUser(
 	ctx context.Context,
 	user models.User,
@@ -95,14 +105,16 @@ func (s *SQLStore) CreateUser(
 	err := s.db.QueryRowContext(
 		ctx,
 		sqlCreateUser,
-		user.Name,
+		user.FirstName,
+		user.LastName,
 		user.Email,
 		user.AvatarURL,
 		user.Provider,
 		user.ProviderID,
 	).Scan(
 		&user.ID,
-		&user.Name,
+		&user.FirstName,
+		&user.LastName,
 		&user.Email,
 		&user.AvatarURL,
 		&user.Provider,
@@ -115,6 +127,67 @@ func (s *SQLStore) CreateUser(
 	}
 
 	return user, nil
+}
+
+func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
+
+	rows, err := s.db.QueryContext(ctx, sqlGetUsersByName, name)
+	if err != nil {
+		log.Errorf("This is the %s: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var users []models.User
+
+	for rows.Next() {
+		u := models.User{}
+		err := rows.Scan(
+			&u.ID,
+			&u.FirstName,
+			&u.LastName,
+			&u.HomeID,
+			&u.Email,
+			&u.AvatarURL,
+		)
+		if err != nil {
+			log.Errorf("This is the %s: ", err)
+			return nil, err
+		}
+
+		users = append(users, u)
+	}
+
+	return users, nil
+}
+
+// UpdateUser updates any value in any table based on any identifier.
+func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) error {
+	user.UpdatedAt = time.Now()
+	err := s.db.QueryRowContext(
+		ctx,
+		sqlUpdateUser,
+		user.FirstName,
+		user.LastName,
+		user.HomeID,
+		user.Email,
+		user.AvatarURL,
+		user.UpdatedAt,
+		user.ID,
+	).Scan(
+		&user.FirstName,
+		&user.LastName,
+		&user.HomeID,
+		&user.Email,
+		&user.AvatarURL,
+		&user.UpdatedAt,
+		&user.ID,
+	)
+
+	if err != nil {
+		log.Errorf("This is the %s: ", err)
+		return err
+	}
+	return nil
 }
 
 // CreateHome function that will be used in the handlers
@@ -134,17 +207,22 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 		&home.UpdatedAt,
 	)
 	if err != nil {
-		return home, fmt.Errorf("error creating home: %v", err)
+		log.Errorf("error creating home: %s", err)
+		return home, err
 	}
 
-	_, err = s.db.ExecContext(
-		ctx,
-		sqlInsertHomeID,
-		home.ID,
-		userID,
-	)
+	user, err := s.GetUserByID(ctx, userID)
 	if err != nil {
-		return home, fmt.Errorf("error creating home: %v", err)
+		log.Errorf("This is the %s: ", err)
+		return home, err
+	}
+
+	user.HomeID = &home.ID
+
+	err = s.UpdateUser(ctx, user)
+	if err != nil {
+		log.Errorf("This is the %s: ", err)
+		return home, err
 	}
 
 	return home, nil
@@ -162,6 +240,7 @@ func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home
 	return h, err
 }
 
+// CreateTask creates a task and associates it with the user who made it
 func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error) {
 	err := s.db.QueryRowContext(
 		ctx,
@@ -178,13 +257,15 @@ func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID stri
 		&task.UpdatedAt,
 	)
 	if err != nil {
-		return task, fmt.Errorf("error creating home: %v", err)
+		log.Errorf("This is the %s: ", err)
+		return task, err
 	}
 
 	return task, nil
 
 }
 
+// GetTasksByUserID returns all of a user's tasks
 func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error) {
 	rows, err := s.db.QueryContext(ctx, sqlGetTasksByUserID, userID)
 	if err != nil {
@@ -208,7 +289,7 @@ func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]model
 			&t.UpdatedAt,
 		)
 		if err != nil {
-			log.Error(err)
+			log.Errorf("This is the %s: ", err)
 			return nil, err
 		}
 
@@ -218,6 +299,7 @@ func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]model
 	return tasks, nil
 }
 
+// GetTaskByID searched the db for a task by its ID
 func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, error) {
 	t := models.Task{}
 	err := s.db.QueryRowContext(
@@ -231,8 +313,7 @@ func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, err
 		&t.Description,
 	)
 	if err != nil {
-		log.Error(err)
-		fmt.Printf("this is the error from DB: %s", err)
+		log.Errorf("This is the %s: ", err)
 		return t, err
 	}
 
@@ -242,9 +323,9 @@ func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, err
 const (
 	sqlCreateUser = `
 	INSERT into users
-	(name, email, avatar_url, provider, provider_id)
-	VALUES ($1, $2, $3, $4, $5)
-	RETURNING id, name, email, avatar_url, provider, provider_id, created_at, updated_at
+	(first_name, last_name, email, avatar_url, provider, provider_id)
+	VALUES ($1, $2, $3, $4, $5, $6)
+	RETURNING id, first_name, last_name, email, avatar_url, provider, provider_id, created_at, updated_at
 	`
 
 	sqlCreateSession = `
@@ -259,15 +340,21 @@ const (
 	WHERE id = $1`
 
 	sqlGetUserByProvider = `
-	SELECT id, name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
+	SELECT id, first_name, last_name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
 	FROM users
 	WHERE provider = $1 AND provider_id = $2
 	`
 
 	sqlGetUserByID = `
-	SELECT id, name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
+	SELECT id, first_name, last_name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
 	FROM users
 	WHERE id = $1
+	`
+
+	sqlGetUsersByName = `
+	SELECT id, first_name, last_name, home_id, email, avatar_url
+	FROM users
+	WHERE CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER('%' || $1 || '%')
 	`
 
 	sqlCreateHome = `
@@ -277,10 +364,16 @@ const (
 	RETURNING id, name, description, avatar_url, created_at, updated_at
 	`
 
-	sqlInsertHomeID = `
+	sqlUpdateUser = `
 	UPDATE users
-	SET home_id = $1
-	WHERE id = $2
+	SET first_name = $1,
+			last_name = $2,
+			home_id = $3,
+			email = $4,
+			avatar_url = $5,
+			updated_at = $6
+	WHERE id = $7
+	RETURNING id, first_name, last_name, email, avatar_url, created_at, updated_at
 	`
 
 	sqlGetHomeByID = `

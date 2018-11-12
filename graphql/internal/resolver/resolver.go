@@ -2,7 +2,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/database"
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
@@ -11,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Resolver contains all the methods to be resolved and gives them access to the store
 type Resolver struct {
 	store database.DAL
 }
@@ -19,6 +19,7 @@ func New(store database.DAL) *Resolver {
 	return &Resolver{store}
 }
 
+// Viewer gathers info on the currently logged in user
 func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 
 	s, ok := session.FromContext(ctx)
@@ -41,7 +42,7 @@ func (r *Resolver) Viewer(ctx context.Context) (*viewerResolver, error) {
 
 	tasks, err := r.store.GetTasksByUserID(ctx, s.User.ID)
 	if err != nil {
-		fmt.Println(err)
+		log.Errorf("This is the %s: ", err)
 		return nil, err
 	}
 
@@ -68,8 +69,12 @@ func (r *viewerResolver) ID() graphql.ID {
 	return graphql.ID(r.user.ID)
 }
 
-func (r *viewerResolver) Name() string {
-	return r.user.Name
+func (r *viewerResolver) FirstName() string {
+	return r.user.FirstName
+}
+
+func (r *viewerResolver) LastName() string {
+	return r.user.LastName
 }
 
 func (r *viewerResolver) Home() *homeResolver {
@@ -77,6 +82,67 @@ func (r *viewerResolver) Home() *homeResolver {
 		return nil
 	}
 	return &homeResolver{*r.home}
+}
+
+// ----------------------- USER RESOLVERS ----------------------------- //
+
+type userResolver struct {
+	user models.User
+}
+
+// Users gathers a colleciton os users based on their name
+func (r *Resolver) Users(ctx context.Context, args *struct {
+	Name string
+}) (*[]*userResolver, error) {
+	users, err := r.store.GetUsersByName(ctx, args.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvers := make([]*userResolver, len(users))
+
+	for i, user := range users {
+		resolvers[i] = &userResolver{user}
+	}
+	return &resolvers, nil
+}
+
+// UpdateUser updates all fields on the user and returns the userResolver with that user
+func (r *Resolver) UpdateUser(ctx context.Context, args *struct {
+	User models.User
+}) (*userResolver, error) {
+	err := r.store.UpdateUser(ctx, args.User)
+	if err != nil {
+		return nil, err
+	}
+	return &userResolver{args.User}, nil
+}
+
+func (r *userResolver) ID() graphql.ID {
+	return graphql.ID(r.user.ID)
+}
+
+func (r *userResolver) FirstName() string {
+	return r.user.FirstName
+}
+
+func (r *userResolver) LastName() string {
+	return r.user.LastName
+}
+func (r *userResolver) Email() string {
+	return r.user.Email
+}
+
+func (r *userResolver) HomeID() *string {
+	if r.user.HomeID == nil {
+		return nil
+	}
+
+	return r.user.HomeID
+}
+
+func (r *userResolver) AvatarURL() *string {
+	return &r.user.AvatarURL
 }
 
 func (r *viewerResolver) Tasks() []*taskResolver {
@@ -217,7 +283,7 @@ func (r *Resolver) CreateHome(ctx context.Context, args *struct {
 
 	h, err := r.store.CreateHome(ctx, home, s.User.ID)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("This is the %s: ", err)
 		return nil, err
 	}
 

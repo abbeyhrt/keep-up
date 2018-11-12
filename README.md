@@ -5,16 +5,20 @@
 <!-- To run doctoc, just do `npx doctoc README.md` in this directory! -->
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 ## Table of Contents
 
-- [Up & Running](#up--running)
-  - [Working on a service](#working-on-a-service)
-  - [Starting the GraphQL service](#starting-the-graphql-service)
-  - [Local `.env` file](#local-env-file)
-- [Troubleshooting](#troubleshooting)
-  - [What if I receive a `502 Bad Gateway` response when using the proxy?](#what-if-i-receive-a-502-bad-gateway-response-when-using-the-proxy)
+- [keep-up](#keep-up)
+  - [Table of Contents](#table-of-contents)
+  - [Up & Running](#up--running)
+    - [Working on a service](#working-on-a-service)
+    - [Starting the GraphQL service](#starting-the-graphql-service)
+    - [Local `.env` file](#local-env-file)
+  - [Troubleshooting](#troubleshooting)
+    - [What if I receive a `502 Bad Gateway` response when using the proxy?](#what-if-i-receive-a-502-bad-gateway-response-when-using-the-proxy)
+    - [What if I receive a `400 Bad Request` response when using the proxy?](#what-if-i-receive-a-400-bad-request-response-when-using-the-proxy)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -36,6 +40,10 @@ to access services at a centralized URL, namely `localhost:3000`.
 You can run these two services through `docker-compose` by running:
 
 ```bash
+# If you're working on the UI
+docker-compose up -d --build postgres proxy graphql
+
+# If you're working on the server
 docker-compose up -d --build postgres proxy
 ```
 
