@@ -9,7 +9,7 @@ type User struct {
 	LastName   string    `json:"last_name"`
 	HomeID     *string   `json:"home_id"`
 	Email      string    `json:"email"`
-	AvatarURL  string    `json:"avatar_url"`
+	AvatarURL  *string   `json:"avatar_url"`
 	Provider   string    `json:"provider"`
 	ProviderID string    `json:"provider_id"`
 	CreatedAt  time.Time `json:"created_at"`

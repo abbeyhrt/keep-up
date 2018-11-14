@@ -84,6 +84,29 @@ func (r *viewerResolver) Home() *homeResolver {
 	return &homeResolver{*r.home}
 }
 
+func (r *viewerResolver) Tasks() []*taskResolver {
+	if r.tasks == nil {
+		return nil
+	}
+	return r.tasks
+}
+
+func (r *viewerResolver) Email() string {
+	return r.user.Email
+}
+
+func (r *viewerResolver) AvatarURL() *string {
+	return r.user.AvatarURL
+}
+
+func (r *viewerResolver) CreatedAt() string {
+	return r.user.CreatedAt.String()
+}
+
+func (r *viewerResolver) UpdatedAt() string {
+	return r.user.UpdatedAt.String()
+}
+
 // ----------------------- USER RESOLVERS ----------------------------- //
 
 type userResolver struct {
@@ -109,13 +132,49 @@ func (r *Resolver) Users(ctx context.Context, args *struct {
 
 // UpdateUser updates all fields on the user and returns the userResolver with that user
 func (r *Resolver) UpdateUser(ctx context.Context, args *struct {
-	User models.User
+	User struct {
+		ID        string
+		FirstName *string
+		LastName  *string
+		Email     *string
+		HomeID    *string
+		AvatarURL *string
+	}
 }) (*userResolver, error) {
-	err := r.store.UpdateUser(ctx, args.User)
+
+	user, err := r.store.GetUserByID(ctx, args.User.ID)
 	if err != nil {
+		log.Errorf("this is the error: %s", err)
 		return nil, err
 	}
-	return &userResolver{args.User}, nil
+
+	if args.User.FirstName != nil {
+		user.FirstName = *args.User.FirstName
+	}
+
+	if args.User.LastName != nil {
+		user.LastName = *args.User.LastName
+	}
+
+	if args.User.Email != nil {
+		user.Email = *args.User.Email
+	}
+
+	if args.User.HomeID != nil {
+		user.HomeID = args.User.HomeID
+	}
+
+	if args.User.AvatarURL != nil {
+		user.AvatarURL = args.User.AvatarURL
+	}
+
+	u, err := r.store.UpdateUser(ctx, user)
+	if err != nil {
+		log.Errorf("this is the error: %s", err)
+		return nil, err
+	}
+
+	return &userResolver{u}, nil
 }
 
 func (r *userResolver) ID() graphql.ID {
@@ -142,30 +201,7 @@ func (r *userResolver) HomeID() *string {
 }
 
 func (r *userResolver) AvatarURL() *string {
-	return &r.user.AvatarURL
-}
-
-func (r *viewerResolver) Tasks() []*taskResolver {
-	if r.tasks == nil {
-		return nil
-	}
-	return r.tasks
-}
-
-func (r *viewerResolver) Email() string {
-	return r.user.Email
-}
-
-func (r *viewerResolver) AvatarURL() *string {
-	return &r.user.AvatarURL
-}
-
-func (r *viewerResolver) CreatedAt() string {
-	return r.user.CreatedAt.String()
-}
-
-func (r *viewerResolver) UpdatedAt() string {
-	return r.user.UpdatedAt.String()
+	return r.user.AvatarURL
 }
 
 func (r *Resolver) Tasks(ctx context.Context) ([]*taskResolver, error) {
@@ -230,6 +266,7 @@ type taskResolver struct {
 func (r *taskResolver) ID() graphql.ID {
 	return graphql.ID(r.task.ID)
 }
+
 func (r *taskResolver) UserID() string {
 	return r.task.UserID
 }

@@ -40,6 +40,9 @@ func (s *MockStore) GetHomeByID(ctx context.Context, homeID *string) (models.Hom
 	return models.Home{}, errors.New("not implemented")
 }
 
+func (s *MockStore) UpdateTask(ctx context.Context, task models.Task) (models.Task, error) {
+	return models.Task{}, errors.New("not implemented")
+}
 func (s *MockStore) CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error) {
 	return models.Task{}, errors.New("not implemented")
 }
@@ -55,6 +58,7 @@ func (s *MockStore) GetTaskByID(ctx context.Context, id string) (models.Task, er
 func (s *MockStore) UpdateUser(ctx context.Context, user models.User) error {
 	return errors.New("not implemented")
 }
+
 func (s *MockStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
 	return []models.User{}, errors.New("not implemented")
 }
