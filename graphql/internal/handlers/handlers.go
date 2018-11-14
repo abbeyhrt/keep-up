@@ -291,7 +291,7 @@ func HandleGoogleCallback(
 			FirstName:  info.GivenName,
 			LastName:   info.FamilyName,
 			Email:      info.Email,
-			AvatarURL:  info.Picture,
+			AvatarURL:  &info.Picture,
 			Provider:   "google",
 			ProviderID: info.ID,
 		}

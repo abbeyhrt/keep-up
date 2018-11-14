@@ -161,7 +161,7 @@ func (s *SQLStore) GetUsersByName(ctx context.Context, name string) ([]models.Us
 }
 
 // UpdateUser updates any value in any table based on any identifier.
-func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) error {
+func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) (models.User, error) {
 	user.UpdatedAt = time.Now()
 	err := s.db.QueryRowContext(
 		ctx,
@@ -185,9 +185,9 @@ func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) error {
 
 	if err != nil {
 		log.Errorf("This is the %s: ", err)
-		return err
+		return user, err
 	}
-	return nil
+	return user, nil
 }
 
 // CreateHome function that will be used in the handlers
@@ -219,9 +219,9 @@ func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID stri
 
 	user.HomeID = &home.ID
 
-	err = s.UpdateUser(ctx, user)
+	u, err := s.UpdateUser(ctx, user)
 	if err != nil {
-		log.Errorf("This is the %s: ", err)
+		log.Errorf("This is the %s and the user %v: ", err, u)
 		return home, err
 	}
 
@@ -264,6 +264,33 @@ func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID stri
 	return task, nil
 
 }
+
+// UpdateTask updates any value in any table based on any identifier.
+// func (s *SQLStore) UpdateTask(ctx context.Context, task models.Task) (models.Task, error) {
+// 	task.UpdatedAt = time.Now()
+// 	err := s.db.QueryRowContext(
+// 		ctx,
+// 		sqlUpdateTask,
+// 		task.UserID,
+// 		task.Title,
+// 		task.Description,
+// 		task.UpdatedAt,
+// 		task.ID,
+// 	).Scan(
+// 		&task.ID,
+// 		&task.UserID,
+// 		&task.Title,
+// 		&task.Description,
+// 		&task.CreatedAt,
+// 		&task.UpdatedAt,
+// 	)
+
+// 	if err != nil {
+// 		log.Errorf("This is the %s: ", err)
+// 		return task, err
+// 	}
+// 	return task, nil
+// }
 
 // GetTasksByUserID returns all of a user's tasks
 func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error) {
@@ -321,12 +348,8 @@ func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, err
 }
 
 const (
-	sqlCreateUser = `
-	INSERT into users
-	(first_name, last_name, email, avatar_url, provider, provider_id)
-	VALUES ($1, $2, $3, $4, $5, $6)
-	RETURNING id, first_name, last_name, email, avatar_url, provider, provider_id, created_at, updated_at
-	`
+
+	// Session Statements
 
 	sqlCreateSession = `
 	INSERT into sessions
@@ -338,6 +361,15 @@ const (
 	SELECT id, user_id
 	FROM sessions
 	WHERE id = $1`
+
+	// User Statements
+
+	sqlCreateUser = `
+	INSERT into users
+	(first_name, last_name, email, avatar_url, provider, provider_id)
+	VALUES ($1, $2, $3, $4, $5, $6)
+	RETURNING id, first_name, last_name, email, avatar_url, provider, provider_id, created_at, updated_at
+	`
 
 	sqlGetUserByProvider = `
 	SELECT id, first_name, last_name, home_id, email, avatar_url, provider, provider_id, created_at, updated_at
@@ -357,13 +389,6 @@ const (
 	WHERE CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER('%' || $1 || '%')
 	`
 
-	sqlCreateHome = `
-	INSERT into homes
-	(name, description, avatar_url)
-	VALUES ($1, $2, $3)
-	RETURNING id, name, description, avatar_url, created_at, updated_at
-	`
-
 	sqlUpdateUser = `
 	UPDATE users
 	SET first_name = $1,
@@ -373,7 +398,16 @@ const (
 			avatar_url = $5,
 			updated_at = $6
 	WHERE id = $7
-	RETURNING id, first_name, last_name, email, avatar_url, created_at, updated_at
+	RETURNING first_name, last_name, home_id, email, avatar_url, updated_at, id
+	`
+
+	// Home Statements
+
+	sqlCreateHome = `
+	INSERT into homes
+	(name, description, avatar_url)
+	VALUES ($1, $2, $3)
+	RETURNING id, name, description, avatar_url, created_at, updated_at
 	`
 
 	sqlGetHomeByID = `
@@ -382,6 +416,7 @@ const (
 	WHERE id = $1
 	`
 
+	// Task Statements
 	sqlCreateTask = `
 	INSERT into tasks
 	(user_id, title, description)
@@ -399,4 +434,13 @@ const (
 	SELECT id, user_id, title, description
 	FROM tasks
 	WHERE id = $1`
+
+	// sqlUpdateTask = `
+	// UPDATE tasks
+	// SET user_id = $1,
+	// 		title = $2,
+	// 		description = $3,
+	// 		updated_at = $4
+	// WHERE id = $5
+	// RETURNING id, user_id, title, description, created_at, updated_at`
 )
