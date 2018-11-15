@@ -204,6 +204,8 @@ func (r *userResolver) AvatarURL() *string {
 	return r.user.AvatarURL
 }
 
+// ---------------- TASK RESOLVERS ------------------ //
+
 func (r *Resolver) Tasks(ctx context.Context) ([]*taskResolver, error) {
 	s, ok := session.FromContext(ctx)
 	if !ok {
@@ -259,6 +261,42 @@ func (r *Resolver) CreateTask(ctx context.Context, args *struct {
 	return &taskResolver{task}, nil
 }
 
+func (r *Resolver) UpdateTask(ctx context.Context, args *struct {
+	Task struct {
+		ID          string
+		Title       *string
+		Description *string
+		UserID      *string
+	}
+}) (*taskResolver, error) {
+
+	task, err := r.store.GetTaskByID(ctx, args.Task.ID)
+	if err != nil {
+		log.Errorf("this is the error: %s", err)
+		return nil, err
+	}
+
+	if args.Task.Title != nil {
+		task.Title = *args.Task.Title
+	}
+
+	if args.Task.Description != nil {
+		task.Description = *args.Task.Description
+	}
+
+	if args.Task.UserID != nil {
+		task.UserID = *args.Task.UserID
+	}
+
+	t, err := r.store.UpdateTask(ctx, task)
+	if err != nil {
+		log.Errorf("this is the error: %s", err)
+		return nil, err
+	}
+
+	return &taskResolver{t}, nil
+}
+
 type taskResolver struct {
 	task models.Task
 }
@@ -286,6 +324,8 @@ func (r *taskResolver) CreatedAt() string {
 func (r *taskResolver) UpdatedAt() string {
 	return r.task.UpdatedAt.String()
 }
+
+// ---------------------- HOME RESOLVERS ----------------------- //
 
 func (r *Resolver) Home(ctx context.Context) (*homeResolver, error) {
 	s, ok := session.FromContext(ctx)

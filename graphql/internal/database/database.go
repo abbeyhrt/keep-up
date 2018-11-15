@@ -30,7 +30,7 @@ type DAL interface {
 
 	//Tasks
 	CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error)
-	//UpdateTask(ctx context.Context, task models.Task) (models.Task, error)
+	UpdateTask(ctx context.Context, task models.Task) (models.Task, error)
 	GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error)
 	GetTaskByID(ctx context.Context, id string) (models.Task, error)
 }
