@@ -55,8 +55,8 @@ func (s *MockStore) GetTaskByID(ctx context.Context, id string) (models.Task, er
 	return models.Task{}, errors.New("not implemented")
 }
 
-func (s *MockStore) UpdateUser(ctx context.Context, user models.User) error {
-	return errors.New("not implemented")
+func (s *MockStore) UpdateUser(ctx context.Context, user models.User) (models.User, error) {
+	return models.User{}, errors.New("not implemented")
 }
 
 func (s *MockStore) GetUsersByName(ctx context.Context, name string) ([]models.User, error) {
