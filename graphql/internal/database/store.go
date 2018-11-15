@@ -265,32 +265,31 @@ func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID stri
 
 }
 
-// UpdateTask updates any value in any table based on any identifier.
-// func (s *SQLStore) UpdateTask(ctx context.Context, task models.Task) (models.Task, error) {
-// 	task.UpdatedAt = time.Now()
-// 	err := s.db.QueryRowContext(
-// 		ctx,
-// 		sqlUpdateTask,
-// 		task.UserID,
-// 		task.Title,
-// 		task.Description,
-// 		task.UpdatedAt,
-// 		task.ID,
-// 	).Scan(
-// 		&task.ID,
-// 		&task.UserID,
-// 		&task.Title,
-// 		&task.Description,
-// 		&task.CreatedAt,
-// 		&task.UpdatedAt,
-// 	)
+//UpdateTask updates any value in any table based on any identifier.
+func (s *SQLStore) UpdateTask(ctx context.Context, task models.Task) (models.Task, error) {
+	task.UpdatedAt = time.Now()
+	err := s.db.QueryRowContext(
+		ctx,
+		sqlUpdateTask,
+		task.UserID,
+		task.Title,
+		task.Description,
+		task.UpdatedAt,
+		task.ID,
+	).Scan(
+		&task.UserID,
+		&task.Title,
+		&task.Description,
+		&task.UpdatedAt,
+		&task.ID,
+	)
 
-// 	if err != nil {
-// 		log.Errorf("This is the %s: ", err)
-// 		return task, err
-// 	}
-// 	return task, nil
-// }
+	if err != nil {
+		log.Errorf("This is the %s: ", err)
+		return task, err
+	}
+	return task, nil
+}
 
 // GetTasksByUserID returns all of a user's tasks
 func (s *SQLStore) GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error) {
@@ -435,12 +434,12 @@ const (
 	FROM tasks
 	WHERE id = $1`
 
-	// sqlUpdateTask = `
-	// UPDATE tasks
-	// SET user_id = $1,
-	// 		title = $2,
-	// 		description = $3,
-	// 		updated_at = $4
-	// WHERE id = $5
-	// RETURNING id, user_id, title, description, created_at, updated_at`
+	sqlUpdateTask = `
+	UPDATE tasks
+	SET user_id = $1,
+			title = $2,
+			description = $3,
+			updated_at = $4
+	WHERE id = $5
+	RETURNING user_id, title, description, updated_at, id`
 )

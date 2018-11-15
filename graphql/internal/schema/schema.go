@@ -25,6 +25,9 @@ var Schema = `
 		updateUser(
 			user: UserInput!
 			): User!
+		updateTask(
+			task: TaskInput!
+			): Task!
 	}
 
 	type Viewer {
@@ -55,6 +58,13 @@ var Schema = `
 		description: String!
 		createdAt: String!
 		updatedAt: String!
+	}
+
+	input TaskInput {
+		id: ID!
+		user_id: String
+		title: String
+		description: String
 	}
 
 	type User {
