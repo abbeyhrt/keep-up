@@ -17,20 +17,29 @@ var Schema = `
 		createHome(
 			name: String!,
 			description: String!
-		): Home!
+			): Home!
+		updateHome(
+			home: HomeInput!
+			): Home
+		deleteHome(
+			id: String!
+			): Home
 		createTask(
 			title: String!,
 			description: String!,
 			): Task!
-		updateUser(
-			user: UserInput!
-			): User!
 		updateTask(
 			task: TaskInput!
 			): Task!
-		updateHome(
-			home: HomeInput!
-			): Home
+		deleteTask(
+			id: String!
+			): Task
+		updateUser(
+			user: UserInput!
+			): User!
+		deleteUser(
+			id: String!
+			): User
 	}
 
 	type Viewer {

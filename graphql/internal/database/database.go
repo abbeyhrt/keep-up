@@ -23,17 +23,20 @@ type DAL interface {
 	GetUserByID(ctx context.Context, id string) (models.User, error)
 	GetUsersByName(ctx context.Context, name string) ([]models.User, error)
 	UpdateUser(ctx context.Context, user models.User) (models.User, error)
+	DeleteUser(ctx context.Context, userID string) error
 
 	//Home
 	CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error)
 	GetHomeByID(ctx context.Context, homeID *string) (models.Home, error)
 	UpdateHome(ctx context.Context, home models.Home) (models.Home, error)
+	DeleteHome(ctx context.Context, ID string) error
 
 	//Tasks
 	CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error)
 	UpdateTask(ctx context.Context, task models.Task) (models.Task, error)
 	GetTasksByUserID(ctx context.Context, userID string) ([]models.Task, error)
 	GetTaskByID(ctx context.Context, id string) (models.Task, error)
+	DeleteTask(ctx context.Context, ID string) error
 }
 
 func New(ctx context.Context, connStr string) (DAL, error) {

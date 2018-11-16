@@ -67,6 +67,17 @@ func (s *MockStore) UpdateHome(ctx context.Context, home models.Home) (models.Ho
 	return models.Home{}, errors.New("not implemented")
 }
 
+func (s *MockStore) DeleteHome(ctx context.Context, ID string) error {
+	return errors.New("not implemented")
+}
+
+func (s *MockStore) DeleteUser(ctx context.Context, ID string) error {
+	return errors.New("not implemented")
+}
+
+func (s *MockStore) DeleteTask(ctx context.Context, ID string) error {
+	return errors.New("not implemented")
+}
 func TestNewServer(t *testing.T) {
 	ctx := context.Background()
 	addr := "0.0.0.0:3000"
