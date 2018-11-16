@@ -240,6 +240,33 @@ func (s *SQLStore) GetHomeByID(ctx context.Context, homeID *string) (models.Home
 	return h, err
 }
 
+func (s *SQLStore) UpdateHome(ctx context.Context, home models.Home) (models.Home, error) {
+	home.UpdatedAt = time.Now()
+	err := s.db.QueryRowContext(
+		ctx,
+		sqlUpdateHome,
+		home.Name,
+		home.Description,
+		home.AvatarURL,
+		home.UpdatedAt,
+		home.ID,
+	).Scan(
+		&home.Name,
+		&home.Description,
+		&home.AvatarURL,
+		&home.UpdatedAt,
+		&home.ID,
+	)
+
+	if err != nil {
+		log.Errorf("This is the %s: ", err)
+		return home, err
+	}
+	return home, nil
+}
+
+// --------------------- TASKS METHODS ---------------------- //
+
 // CreateTask creates a task and associates it with the user who made it
 func (s *SQLStore) CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error) {
 	err := s.db.QueryRowContext(
@@ -413,6 +440,16 @@ const (
 	SELECT id, name, description
 	FROM homes
 	WHERE id = $1
+	`
+
+	sqlUpdateHome = `
+	UPDATE homes
+	SET name = $1,
+			description = $2,
+			avatar_url = $3,
+			updated_at = $4
+	WHERE id = $5
+	RETURNING name, description, avatar_url, updated_at, id
 	`
 
 	// Task Statements

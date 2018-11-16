@@ -28,6 +28,9 @@ var Schema = `
 		updateTask(
 			task: TaskInput!
 			): Task!
+		updateHome(
+			home: HomeInput!
+			): Home
 	}
 
 	type Viewer {
@@ -49,6 +52,13 @@ var Schema = `
 	  avatarURL: String
 		createdAt: String!
 		updatedAt: String!
+	}
+
+	input HomeInput {
+		id: ID!
+		name: String
+		description: String
+		avatarURL: String
 	}
 
 	type Task {

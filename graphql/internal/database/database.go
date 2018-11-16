@@ -27,6 +27,7 @@ type DAL interface {
 	//Home
 	CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error)
 	GetHomeByID(ctx context.Context, homeID *string) (models.Home, error)
+	UpdateHome(ctx context.Context, home models.Home) (models.Home, error)
 
 	//Tasks
 	CreateTask(ctx context.Context, task models.Task, userID string) (models.Task, error)
