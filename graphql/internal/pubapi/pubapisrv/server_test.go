@@ -63,6 +63,10 @@ func (s *MockStore) GetUsersByName(ctx context.Context, name string) ([]models.U
 	return []models.User{}, errors.New("not implemented")
 }
 
+func (s *MockStore) UpdateHome(ctx context.Context, home models.Home) (models.Home, error) {
+	return models.Home{}, errors.New("not implemented")
+}
+
 func TestNewServer(t *testing.T) {
 	ctx := context.Background()
 	addr := "0.0.0.0:3000"
