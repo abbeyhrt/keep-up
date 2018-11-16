@@ -367,6 +367,42 @@ func (r *Resolver) CreateHome(ctx context.Context, args *struct {
 	return &homeResolver{h}, nil
 }
 
+func (r *Resolver) UpdateHome(ctx context.Context, args *struct {
+	Home struct {
+		ID          string
+		Name        *string
+		Description *string
+		AvatarURL   *string
+	}
+}) (*homeResolver, error) {
+
+	home, err := r.store.GetHomeByID(ctx, &args.Home.ID)
+	if err != nil {
+		log.Errorf("this is the error: %s", err)
+		return nil, err
+	}
+
+	if args.Home.Name != nil {
+		home.Name = *args.Home.Name
+	}
+
+	if args.Home.Description != nil {
+		home.Description = *args.Home.Description
+	}
+
+	if args.Home.AvatarURL != nil {
+		home.AvatarURL = *args.Home.AvatarURL
+	}
+
+	h, err := r.store.UpdateHome(ctx, home)
+	if err != nil {
+		log.Errorf("this is the error: %s", err)
+		return nil, err
+	}
+
+	return &homeResolver{h}, nil
+}
+
 type homeResolver struct {
 	home models.Home
 }
