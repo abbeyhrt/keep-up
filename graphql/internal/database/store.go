@@ -190,6 +190,18 @@ func (s *SQLStore) UpdateUser(ctx context.Context, user models.User) (models.Use
 	return user, nil
 }
 
+func (s *SQLStore) DeleteUser(ctx context.Context, userID string) error {
+	_, err := s.db.ExecContext(ctx, sqlDeleteUser, userID)
+	if err != nil {
+		log.Errorf("Error deleting user, %s", err)
+		return err
+	}
+
+	return nil
+}
+
+// --------------------- HOME METHODS --------------------- //
+
 // CreateHome function that will be used in the handlers
 func (s *SQLStore) CreateHome(ctx context.Context, home models.Home, userID string) (models.Home, error) {
 	err := s.db.QueryRowContext(
@@ -263,6 +275,16 @@ func (s *SQLStore) UpdateHome(ctx context.Context, home models.Home) (models.Hom
 		return home, err
 	}
 	return home, nil
+}
+
+func (s *SQLStore) DeleteHome(ctx context.Context, ID string) error {
+	_, err := s.db.ExecContext(ctx, sqlDeleteHome, ID)
+	if err != nil {
+		log.Errorf("Error deleting user, %s", err)
+		return err
+	}
+
+	return nil
 }
 
 // --------------------- TASKS METHODS ---------------------- //
@@ -373,6 +395,16 @@ func (s *SQLStore) GetTaskByID(ctx context.Context, id string) (models.Task, err
 	return t, err
 }
 
+func (s *SQLStore) DeleteTask(ctx context.Context, ID string) error {
+	_, err := s.db.ExecContext(ctx, sqlDeleteTask, ID)
+	if err != nil {
+		log.Errorf("Error deleting user, %s", err)
+		return err
+	}
+
+	return nil
+}
+
 const (
 
 	// Session Statements
@@ -427,6 +459,11 @@ const (
 	RETURNING first_name, last_name, home_id, email, avatar_url, updated_at, id
 	`
 
+	sqlDeleteUser = `
+	DELETE FROM users
+	WHERE id = $1
+	`
+
 	// Home Statements
 
 	sqlCreateHome = `
@@ -452,7 +489,12 @@ const (
 	RETURNING name, description, avatar_url, updated_at, id
 	`
 
+	sqlDeleteHome = `
+	DELETE FROM homes
+	WHERE id = $1
+	`
 	// Task Statements
+
 	sqlCreateTask = `
 	INSERT into tasks
 	(user_id, title, description)
@@ -479,4 +521,9 @@ const (
 			updated_at = $4
 	WHERE id = $5
 	RETURNING user_id, title, description, updated_at, id`
+
+	sqlDeleteTask = `
+	DELETE FROM tasks
+	WHERE id = $1
+	`
 )

@@ -131,7 +131,7 @@ func (r *Resolver) Users(ctx context.Context, args *struct {
 }
 
 // UpdateUser updates all fields on the user and returns the userResolver with that user
-func (r *Resolver) UpdateUser(ctx context.Context, args *struct {
+func (r *Resolver) UpdateUser(ctx context.Context, args struct {
 	User struct {
 		ID        string
 		FirstName *string
@@ -177,6 +177,18 @@ func (r *Resolver) UpdateUser(ctx context.Context, args *struct {
 	return &userResolver{u}, nil
 }
 
+func (r *Resolver) DeleteUser(ctx context.Context, args struct {
+	ID string
+}) (*userResolver, error) {
+	err := r.store.DeleteUser(ctx, args.ID)
+	if err != nil {
+		log.Errorf("Error deleting user: %s", err)
+		return nil, err
+	}
+
+	return &userResolver{}, nil
+}
+
 func (r *userResolver) ID() graphql.ID {
 	return graphql.ID(r.user.ID)
 }
@@ -188,6 +200,7 @@ func (r *userResolver) FirstName() string {
 func (r *userResolver) LastName() string {
 	return r.user.LastName
 }
+
 func (r *userResolver) Email() string {
 	return r.user.Email
 }
@@ -297,6 +310,18 @@ func (r *Resolver) UpdateTask(ctx context.Context, args *struct {
 	return &taskResolver{t}, nil
 }
 
+func (r *Resolver) DeleteTask(ctx context.Context, args struct {
+	ID string
+}) (*taskResolver, error) {
+	err := r.store.DeleteTask(ctx, args.ID)
+	if err != nil {
+		log.Errorf("Error deleting task: %s", err)
+		return nil, err
+	}
+
+	return &taskResolver{}, nil
+}
+
 type taskResolver struct {
 	task models.Task
 }
@@ -401,6 +426,18 @@ func (r *Resolver) UpdateHome(ctx context.Context, args *struct {
 	}
 
 	return &homeResolver{h}, nil
+}
+
+func (r *Resolver) DeleteHome(ctx context.Context, args struct {
+	ID string
+}) (*homeResolver, error) {
+	err := r.store.DeleteHome(ctx, args.ID)
+	if err != nil {
+		log.Errorf("Error deleting Home: %s", err)
+		return nil, err
+	}
+
+	return &homeResolver{}, nil
 }
 
 type homeResolver struct {
