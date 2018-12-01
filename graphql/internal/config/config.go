@@ -21,6 +21,7 @@ type Config struct {
 	Env          string
 	Postgres     url.URL
 	Google       Provider
+	Facebook     Provider
 	CookieSecret string
 }
 
@@ -77,6 +78,21 @@ func New() (Config, error) {
 		},
 	}
 
+	oauthFB := oauth2.Config{
+		ClientID:     os.Getenv("FACEBOOK_CLIENT_ID"),
+		ClientSecret: os.Getenv("FACEBOOK_CLIENT_SECRET"),
+		RedirectURL:  os.Getenv("FACEBOOK_REDIRECT_URL"),
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://www.facebook.com/v3.2/dialog/oauth?scope=email",
+			TokenURL: "https://graph.facebook.com/v3.2/oauth/access_token?",
+		},
+	}
+
+	fbUserInfo, err := url.Parse(os.Getenv("FACEBOOK_API_URL"))
+	if err != nil {
+		return Config{}, err
+	}
+
 	userinfo, err := url.Parse(os.Getenv("GOOGLE_ACCESS_URL"))
 	if err != nil {
 		return Config{}, err
@@ -93,6 +109,10 @@ func New() (Config, error) {
 		Google: Provider{
 			OAuth:    oauth,
 			UserInfo: *userinfo,
+		},
+		Facebook: Provider{
+			OAuth:    oauthFB,
+			UserInfo: *fbUserInfo,
 		},
 		CookieSecret: cookie,
 	}, nil

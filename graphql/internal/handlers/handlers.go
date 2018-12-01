@@ -27,6 +27,20 @@ type googleUserInfo struct {
 	Picture    string `json:"picture"`
 }
 
+type facebookUserInfo struct {
+	ID        string `json:"id"`
+	Email     string `json:"email"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Picture   struct {
+		Data struct {
+			Height int    `json:"height"`
+			URL    string `json:"url"`
+			Width  int    `json:"width"`
+		} `json:"data"`
+	} `json:"picture"`
+}
+
 func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handler {
 	r := mux.NewRouter()
 	r.Use(RequestIDMiddleware)
@@ -43,6 +57,7 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 			<body>
 			<h1>Keep Up</h1>
 			<a href="/auth/google">Login with Google</a>
+			<a href="/auth/facebook">Login with Facebook</a>
 			</body>
 			</html>
 			`))
@@ -59,6 +74,19 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 			cfg.Google.OAuth,
 			cfg.CookieSecret,
 			cfg.Google.UserInfo,
+			store,
+		),
+	).Methods("GET")
+
+	r.HandleFunc("/auth/facebook",
+		HandleFacebookAuth(cfg.Facebook.OAuth, cfg.CookieSecret),
+	).Methods("GET")
+	r.HandleFunc("/auth/facebook/callback",
+		HandleFacebookCallback(
+			ctx,
+			cfg.Facebook.UserInfo,
+			cfg.Facebook.OAuth,
+			cfg.CookieSecret,
 			store,
 		),
 	).Methods("GET")
@@ -114,11 +142,13 @@ func SessionMiddleware(
 
 			sc := securecookie.New(hashKey, blockKey)
 
+			// Checks if user is logged in.
 			cookie, err := r.Cookie(sessionKey)
 			if err != nil {
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 				return
 			}
+			//
 			value := make(map[string]string)
 			if err == nil {
 				err = sc.Decode(sessionKey, cookie.Value, &value)
@@ -223,6 +253,154 @@ func HandleGoogleCallback(
 	store database.DAL,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		// Checks to make sure the url query for the queryState value from the url exists
+		queryState := r.FormValue("state")
+		if queryState == "" {
+			http.Error(w, "no state recieved", http.StatusInternalServerError)
+			return
+		}
+
+		// Decodes our state cookie
+		hashKey := []byte(secret)
+
+		blockKey := []byte(nil)
+
+		s := securecookie.New(hashKey, blockKey)
+
+		value := make(map[string]string)
+		if cookie, err := r.Cookie("state"); err == nil {
+			err = s.Decode("state", cookie.Value, &value)
+		} else {
+			log.Error(err)
+			http.Error(w, "error decoding cookie value", http.StatusInternalServerError)
+			return
+		}
+
+		// Verifies our state cookie matches the queryState
+		if value["stateValue"] != queryState {
+			http.Error(w, "stored state does not equal query state", http.StatusInternalServerError)
+			return
+		}
+
+		// Returns a string of the code in the callback url
+		code := r.FormValue("code")
+		if code == "" {
+			http.Error(w, "no code received", http.StatusInternalServerError)
+			return
+		}
+
+		// Converts the code into a token
+		token, err := cfg.Exchange(oauth2.NoContext, code)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		v := url.Values{}
+		v.Set("access_token", token.AccessToken)
+
+		userInfo.RawQuery = v.Encode()
+
+		response, err := http.Get(userInfo.String())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		defer response.Body.Close()
+		data, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var info googleUserInfo
+		if err := json.Unmarshal(data, &info); err != nil {
+			log.Error(err)
+			http.Error(w, "unmarshal error", http.StatusInternalServerError)
+			return
+		}
+
+		user := models.User{
+			ID:         `json:"id"`,
+			FirstName:  info.GivenName,
+			LastName:   info.FamilyName,
+			Email:      info.Email,
+			AvatarURL:  &info.Picture,
+			Provider:   "google",
+			ProviderID: info.ID,
+		}
+
+		err = store.GetOrCreateUser(ctx, &user)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		session, err := store.CreateSession(ctx, user.ID)
+		if err != nil {
+			http.Error(w, err.Error(),
+				http.StatusInternalServerError)
+			return
+		}
+
+		cookieValue := map[string]string{
+			"sessID": session.ID,
+		}
+
+		if encoded, err := s.Encode(sessionKey, cookieValue); err == nil {
+			c := &http.Cookie{
+				Name:   sessionKey,
+				Value:  encoded,
+				Path:   "/",
+				MaxAge: 10000,
+			}
+			http.SetCookie(w, c)
+			r.AddCookie(c)
+
+		}
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+func HandleFacebookAuth(cfg oauth2.Config, secret string) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		hashKey := []byte(secret)
+
+		blockKey := []byte(nil)
+
+		s := securecookie.New(hashKey, blockKey)
+
+		stateID := uuid.NewV4().String()
+
+		state := map[string]string{
+			"stateValue": stateID,
+		}
+
+		if encoded, err := s.Encode("state", state); err == nil {
+			c := &http.Cookie{
+				Name:   "state",
+				Value:  encoded,
+				Path:   "/",
+				MaxAge: 10000,
+			}
+			if err != nil {
+				log.Error(err)
+				http.Error(w, "error making cookie", http.StatusInternalServerError)
+				return
+			}
+			http.SetCookie(w, c)
+		}
+
+		url := cfg.AuthCodeURL(stateID, oauth2.AccessTypeOffline)
+		http.Redirect(w, r, url, http.StatusFound)
+	}
+}
+
+func HandleFacebookCallback(ctx context.Context, userInfo url.URL, cfg oauth2.Config, secret string, store database.DAL) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		queryState := r.FormValue("state")
 		if queryState == "" {
 			http.Error(w, "no state recieved", http.StatusInternalServerError)
@@ -262,8 +440,11 @@ func HandleGoogleCallback(
 		}
 
 		v := url.Values{}
+		v.Set("fields", "id,first_name,last_name,email,picture")
 		v.Set("access_token", token.AccessToken)
 
+		//fmt.Printf("this is the url values: %s", v)
+		//fmt.Printf("this is the access tokem(ideally): %s", token.AccessToken)
 		userInfo.RawQuery = v.Encode()
 
 		response, err := http.Get(userInfo.String())
@@ -279,7 +460,8 @@ func HandleGoogleCallback(
 			return
 		}
 
-		var info googleUserInfo
+		// fmt.Println("WHERE AM I")
+		var info facebookUserInfo
 		if err := json.Unmarshal(data, &info); err != nil {
 			log.Error(err)
 			http.Error(w, "unmarshal error", http.StatusInternalServerError)
@@ -288,11 +470,11 @@ func HandleGoogleCallback(
 
 		user := models.User{
 			ID:         `json:"id"`,
-			FirstName:  info.GivenName,
-			LastName:   info.FamilyName,
+			FirstName:  info.FirstName,
+			LastName:   info.LastName,
 			Email:      info.Email,
-			AvatarURL:  &info.Picture,
-			Provider:   "google",
+			AvatarURL:  &info.Picture.Data.URL,
+			Provider:   "facebook",
 			ProviderID: info.ID,
 		}
 
