@@ -443,8 +443,6 @@ func HandleFacebookCallback(ctx context.Context, userInfo url.URL, cfg oauth2.Co
 		v.Set("fields", "id,first_name,last_name,email,picture")
 		v.Set("access_token", token.AccessToken)
 
-		//fmt.Printf("this is the url values: %s", v)
-		//fmt.Printf("this is the access tokem(ideally): %s", token.AccessToken)
 		userInfo.RawQuery = v.Encode()
 
 		response, err := http.Get(userInfo.String())
@@ -460,7 +458,6 @@ func HandleFacebookCallback(ctx context.Context, userInfo url.URL, cfg oauth2.Co
 			return
 		}
 
-		// fmt.Println("WHERE AM I")
 		var info facebookUserInfo
 		if err := json.Unmarshal(data, &info); err != nil {
 			log.Error(err)
