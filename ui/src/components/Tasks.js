@@ -30,14 +30,21 @@ const Tasks = () => {
           );
         }
         const tasks = data.viewer.tasks;
-        return tasks.map(task => (
-          <TaskPage
-            title={task.title}
-            description={task.description}
-            id={task.id}
-            key={task.id}
-          />
-        ));
+        if (tasks != null) {
+          return tasks.map(task => (
+            <TaskPage
+              title={task.title}
+              description={task.description}
+              id={task.id}
+              key={task.id}
+            />
+          ));
+        }
+        return (
+          <p>
+            No tasks found! Click <a href="/tasks/new">here</a> to create tasks!
+          </p>
+        );
       }}
     </Query>
   );

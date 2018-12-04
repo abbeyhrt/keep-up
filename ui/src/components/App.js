@@ -6,6 +6,7 @@ import { ApolloProvider } from 'react-apollo';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import CreateTask from './CreateTask';
+import AddHome from './AddHome';
 import Home from './Home';
 import Login from './Login';
 import NotFound from './NotFound';
@@ -13,6 +14,7 @@ import Onboard from './Onboard';
 import ServerError from './ServerError';
 import Tasks from './Tasks';
 import Task from './Task';
+import ViewerQuery from './ViewerQuery';
 
 const link = createHttpLink({
   uri: '/graphql',
@@ -38,6 +40,7 @@ class App extends Component {
             <hr />
             <div className="nav-menu">
               <Route path="/home" component={Home} />
+              <Route path="home/new" component={AddHome} />
               <Route path="/login" component={Login} />
               <Route path="/onboarding" component={Onboard} />
               <Route exact path="/tasks" component={Tasks} />
@@ -45,6 +48,7 @@ class App extends Component {
               <Route path="/tasks/new" component={CreateTask} />
               <Route path="/whoops" component={NotFound} />
               <Route path="/server-error" component={ServerError} />
+              <Route exact path="/viewer" component={ViewerQuery} />
             </div>
           </div>
         </Router>

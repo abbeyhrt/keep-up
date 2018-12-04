@@ -22,13 +22,22 @@ const Task = props => (
         return <p>error</p>;
       }
       const task = data.task;
+      if (task != null) {
+        return (
+          <TaskPage
+            title={task.title}
+            description={task.description}
+            id={task.id}
+            key={task.id}
+          />
+        );
+      }
+
       return (
-        <TaskPage
-          title={task.title}
-          description={task.description}
-          id={task.id}
-          key={task.id}
-        />
+        <p>
+          We couldn't find that task! Click <a href="/tasks/new">here</a> to
+          make a new one!
+        </p>
       );
     }}
   </Query>
