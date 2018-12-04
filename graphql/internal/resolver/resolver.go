@@ -84,11 +84,11 @@ func (r *viewerResolver) Home() *homeResolver {
 	return &homeResolver{*r.home}
 }
 
-func (r *viewerResolver) Tasks() []*taskResolver {
+func (r *viewerResolver) Tasks() *[]*taskResolver {
 	if r.tasks == nil {
 		return nil
 	}
-	return r.tasks
+	return &r.tasks
 }
 
 func (r *viewerResolver) Email() string {
@@ -219,7 +219,7 @@ func (r *userResolver) AvatarURL() *string {
 
 // ---------------- TASK RESOLVERS ------------------ //
 
-func (r *Resolver) Tasks(ctx context.Context) ([]*taskResolver, error) {
+func (r *Resolver) Tasks(ctx context.Context) (*[]*taskResolver, error) {
 	s, ok := session.FromContext(ctx)
 	if !ok {
 		return nil, nil
@@ -236,7 +236,7 @@ func (r *Resolver) Tasks(ctx context.Context) ([]*taskResolver, error) {
 		resolvers[i] = &taskResolver{task}
 	}
 
-	return resolvers, nil
+	return &resolvers, nil
 }
 
 func (r *Resolver) Task(ctx context.Context, args *struct {
