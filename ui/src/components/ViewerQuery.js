@@ -43,6 +43,7 @@ const ViewerQuery = () => (
       }
       return (
         <div>
+          <p>{v.id}</p>
           <p>{v.first_name}</p>
           <p>{v.last_name}</p>
           <p>{v.email}</p>

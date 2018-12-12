@@ -2,6 +2,7 @@ import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import TaskPage from './TaskPage';
+import UpdateTask from './UpdateTask';
 
 const GET_TASK = gql`
   query Task($id: ID!) {
@@ -22,17 +23,23 @@ const Task = props => (
         return <p>error</p>;
       }
       const task = data.task;
-      if (task != null) {
+      if (task.length !== 0) {
         return (
-          <TaskPage
-            title={task.title}
-            description={task.description}
-            id={task.id}
-            key={task.id}
-          />
+          <div>
+            <TaskPage
+              title={task.title}
+              description={task.description}
+              id={task.id}
+              key={task.id}
+            />
+            <UpdateTask
+              id={task.id}
+              title={task.title}
+              description={task.description}
+            />
+          </div>
         );
       }
-
       return (
         <p>
           We couldn't find that task! Click <a href="/tasks/new">here</a> to

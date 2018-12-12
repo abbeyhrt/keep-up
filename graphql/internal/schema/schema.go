@@ -47,7 +47,7 @@ var Schema = `
 		first_name: String!
 		last_name: String!
 		home: Home
-		tasks: [Task!]
+		tasks: [Task!]!
 		email: String!
 		avatarURL: String
 		createdAt: String!
