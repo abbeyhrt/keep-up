@@ -30,7 +30,7 @@ const Tasks = () => {
           );
         }
         const tasks = data.viewer.tasks;
-        if (tasks != null) {
+        if (tasks.length >= 1) {
           return tasks.map(task => (
             <TaskPage
               title={task.title}
