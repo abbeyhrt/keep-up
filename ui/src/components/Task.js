@@ -3,6 +3,7 @@ import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import TaskPage from './TaskPage';
 import UpdateTask from './UpdateTask';
+import DeleteTask from './DeleteTask';
 
 const GET_TASK = gql`
   query Task($id: ID!) {
@@ -19,9 +20,18 @@ const Task = props => (
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>;
       if (error) {
+        if (error === 'sql: no rows in result set') {
+          return (
+            <p>
+              We couldn't find that task! Click <a href="/tasks/new">here</a> to
+              make a new one!
+            </p>
+          );
+        }
         console.log(error);
         return <p>error</p>;
       }
+
       const task = data.task;
       if (task.length !== 0) {
         return (
@@ -37,6 +47,7 @@ const Task = props => (
               title={task.title}
               description={task.description}
             />
+            <DeleteTask id={task.id} />
           </div>
         );
       }
