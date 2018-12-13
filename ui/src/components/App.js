@@ -40,12 +40,12 @@ class App extends Component {
             <hr />
             <div className="nav-menu">
               <Route path="/home" component={Home} />
-              <Route path="home/new" component={AddHome} />
+              <Route exact path="/home/new" component={AddHome} />
               <Route path="/login" component={Login} />
               <Route path="/onboarding" component={Onboard} />
               <Route exact path="/tasks" component={Tasks} />
               <Route exact path="/tasks/:id" component={Task} />
-              <Route path="/tasks/new" component={CreateTask} />
+              <Route exact path="/tasks/new" component={CreateTask} />
               <Route path="/whoops" component={NotFound} />
               <Route path="/server-error" component={ServerError} />
               <Route exact path="/viewer" component={ViewerQuery} />

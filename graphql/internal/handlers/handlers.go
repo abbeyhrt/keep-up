@@ -106,7 +106,9 @@ func New(ctx context.Context, cfg config.Config, store database.DAL) http.Handle
 			</head>
 			<body>
 			<h1>Keep Up</h1>
+			<a href="/auth/facebook">Login with Facebook</a>
 			<a href="/auth/google">Login with Google</a>
+
 			</body>
 			</html>
 		`))

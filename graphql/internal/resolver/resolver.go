@@ -428,6 +428,7 @@ func (r *Resolver) UpdateHome(ctx context.Context, args *struct {
 	return &homeResolver{h}, nil
 }
 
+// DeleteHome deletes a user's home
 func (r *Resolver) DeleteHome(ctx context.Context, args struct {
 	ID string
 }) (*homeResolver, error) {
