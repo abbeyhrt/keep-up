@@ -31,7 +31,7 @@ class AddTask extends React.Component {
       },
     });
 
-    this.props.history.push('/task');
+    this.props.history.push('/tasks');
   };
 
   handleOnChange = inputName => event => {

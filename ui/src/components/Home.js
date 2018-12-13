@@ -1,9 +1,6 @@
-//eslint-disable-next-line no-unused-vars
 import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
-import UpdateHome from './UpdateHome';
-import DeleteHome from './DeleteHome';
 
 const GET_USER_HOME = gql`
   {
@@ -34,16 +31,6 @@ const Home = () => (
             <div>
               <p>{h.name}</p>
               <p>{h.description}</p>
-              <div>
-                <UpdateHome
-                  name={h.name}
-                  description={h.description}
-                  id={h.id}
-                />
-              </div>
-              <div>
-                <DeleteHome id={h.id} />
-              </div>
             </div>
           );
         }

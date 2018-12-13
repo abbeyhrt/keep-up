@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/abbeyhrt/keep-up/graphql/internal/models"
+	"github.com/abbeyhrt/keep-up/graphql/internal/session"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -278,7 +279,26 @@ func (s *SQLStore) UpdateHome(ctx context.Context, home models.Home) (models.Hom
 }
 
 func (s *SQLStore) DeleteHome(ctx context.Context, ID string) error {
-	_, err := s.db.ExecContext(ctx, sqlDeleteHome, ID)
+	t, ok := session.FromContext(ctx)
+	if !ok {
+		return nil
+	}
+
+	u, err := s.GetUserByID(ctx, t.User.ID)
+	if err != nil {
+		log.Errorf("Error finding user %s", err)
+		return err
+	}
+
+	u.HomeID = nil
+
+	_, err = s.UpdateUser(ctx, u)
+	if err != nil {
+		log.Errorf("Error updating user %s", err)
+		return err
+	}
+
+	_, err = s.db.ExecContext(ctx, sqlDeleteHome, ID)
 	if err != nil {
 		log.Errorf("Error deleting user, %s", err)
 		return err

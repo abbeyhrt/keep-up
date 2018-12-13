@@ -2,8 +2,6 @@ import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import TaskPage from './TaskPage';
-import UpdateTask from './UpdateTask';
-import DeleteTask from './DeleteTask';
 
 const GET_TASK = gql`
   query Task($id: ID!) {
@@ -42,12 +40,6 @@ const Task = props => (
               id={task.id}
               key={task.id}
             />
-            <UpdateTask
-              id={task.id}
-              title={task.title}
-              description={task.description}
-            />
-            <DeleteTask id={task.id} />
           </div>
         );
       }
