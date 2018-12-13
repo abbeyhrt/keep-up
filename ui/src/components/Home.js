@@ -2,6 +2,8 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
+import UpdateHome from './UpdateHome';
+import DeleteHome from './DeleteHome';
 
 const GET_USER_HOME = gql`
   {
@@ -10,6 +12,7 @@ const GET_USER_HOME = gql`
       home {
         id
         name
+        description
       }
     }
   }
@@ -26,7 +29,23 @@ const Home = () => (
           return <p>error</p>;
         }
         if (data.viewer.home != null) {
-          return data.viewer.home.name;
+          const h = data.viewer.home;
+          return (
+            <div>
+              <p>{h.name}</p>
+              <p>{h.description}</p>
+              <div>
+                <UpdateHome
+                  name={h.name}
+                  description={h.description}
+                  id={h.id}
+                />
+              </div>
+              <div>
+                <DeleteHome id={h.id} />
+              </div>
+            </div>
+          );
         }
         return (
           <p>
