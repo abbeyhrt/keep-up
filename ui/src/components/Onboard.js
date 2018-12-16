@@ -1,7 +1,7 @@
 //eslint-disable-next-line
 import React from 'react';
 //eslint-disable-next-line
-import AddHome from './AddHome';
+import AddHome from './home/AddHome';
 
 const Onboard = () => (
   <div className="wrapper">

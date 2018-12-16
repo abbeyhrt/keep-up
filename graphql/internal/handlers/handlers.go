@@ -23,7 +23,7 @@ type googleUserInfo struct {
 	ID         string `json:"id"`
 	Email      string `json:"email"`
 	GivenName  string `json:"given_name"`
-	FamilyName string `json:"family_name`
+	FamilyName string `json:"family_name"`
 	Picture    string `json:"picture"`
 }
 
