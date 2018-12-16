@@ -109,25 +109,55 @@ func (r *viewerResolver) UpdatedAt() string {
 
 // ----------------------- USER RESOLVERS ----------------------------- //
 
-type userResolver struct {
+type UserResolver struct {
 	user models.User
+	home *models.Home
 }
 
 // Users gathers a colleciton os users based on their name
 func (r *Resolver) Users(ctx context.Context, args *struct {
 	Name string
-}) (*[]*userResolver, error) {
+}) (*[]*UserResolver, error) {
 	users, err := r.store.GetUsersByName(ctx, args.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	resolvers := make([]*userResolver, len(users))
+	resolvers := make([]*UserResolver, len(users))
 
 	for i, user := range users {
-		resolvers[i] = &userResolver{user}
+		resolvers[i] = &UserResolver{user, nil}
 	}
 	return &resolvers, nil
+}
+
+//User resolves for one user, by their id
+func (r *Resolver) User(ctx context.Context, args *struct {
+	ID string
+}) (*UserResolver, error) {
+
+	user, err := r.store.GetUserByID(ctx, args.ID)
+	if err != nil {
+		log.Errorf("Error finding user: %s", err)
+		return nil, nil
+	}
+
+	if user.HomeID == nil {
+		return &UserResolver{
+			user: user,
+			home: nil,
+		}, nil
+	}
+
+	home, err := r.store.GetHomeByID(ctx, user.HomeID)
+	if err != nil {
+		log.Errorf("Error finding home: %s", err)
+	}
+
+	return &UserResolver{
+		user: user,
+		home: &home,
+	}, nil
 }
 
 // UpdateUser updates all fields on the user and returns the userResolver with that user
@@ -140,7 +170,7 @@ func (r *Resolver) UpdateUser(ctx context.Context, args struct {
 		HomeID    *string
 		AvatarURL *string
 	}
-}) (*userResolver, error) {
+}) (*UserResolver, error) {
 
 	user, err := r.store.GetUserByID(ctx, args.User.ID)
 	if err != nil {
@@ -174,46 +204,52 @@ func (r *Resolver) UpdateUser(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	return &userResolver{u}, nil
+	return &UserResolver{u, nil}, nil
 }
 
+// DeleteUser deletes user
 func (r *Resolver) DeleteUser(ctx context.Context, args struct {
 	ID string
-}) (*userResolver, error) {
+}) (*UserResolver, error) {
 	err := r.store.DeleteUser(ctx, args.ID)
 	if err != nil {
 		log.Errorf("Error deleting user: %s", err)
 		return nil, err
 	}
 
-	return &userResolver{}, nil
+	return &UserResolver{}, nil
 }
 
-func (r *userResolver) ID() graphql.ID {
+// ID resolves for field id
+func (r *UserResolver) ID() graphql.ID {
 	return graphql.ID(r.user.ID)
 }
 
-func (r *userResolver) FirstName() string {
+// FirstName resolves for field FirstName
+func (r *UserResolver) FirstName() string {
 	return r.user.FirstName
 }
 
-func (r *userResolver) LastName() string {
+// LastName resolves for field LastName
+func (r *UserResolver) LastName() string {
 	return r.user.LastName
 }
 
-func (r *userResolver) Email() string {
+// Email resolves for field Email
+func (r *UserResolver) Email() string {
 	return r.user.Email
 }
 
-func (r *userResolver) HomeID() *string {
-	if r.user.HomeID == nil {
+// Home resolves for field HomeID
+func (r *UserResolver) Home() *homeResolver {
+	if r.home == nil {
 		return nil
 	}
-
-	return r.user.HomeID
+	return &homeResolver{*r.home}
 }
 
-func (r *userResolver) AvatarURL() *string {
+// AvatarURL resolves for field AvatarURL
+func (r *UserResolver) AvatarURL() *string {
 	return r.user.AvatarURL
 }
 

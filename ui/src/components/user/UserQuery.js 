@@ -1,0 +1,47 @@
+import React from 'react';
+import { Query } from 'react-apollo';
+import gql from 'graphql-tag';
+
+const GET_USER = gql`
+  query User($id: ID!) {
+    user(id: $id) {
+      id
+      first_name
+      last_name
+      email
+      home_id
+    }
+  }
+`;
+
+const User = props => (
+  <Query query={GET_USER} variables={{ id: props.id }}>
+    {({ loading, error, data }) => {
+      if (loading) return <p>Loading...</p>;
+      if (error) {
+        if (error === 'sql: no rows in result set') {
+          return <p>We couldn't find that user!</p>;
+        }
+        console.log(error);
+        return <p>error</p>;
+      }
+
+      const user = data.user;
+      if (user.length !== 0) {
+        return (
+          <div>
+            <TaskPage
+              title={task.title}
+              description={task.description}
+              id={task.id}
+              key={task.id}
+            />
+          </div>
+        );
+      }
+      return <p>We couldn't find that user!</p>;
+    }}
+  </Query>
+);
+
+export default User;

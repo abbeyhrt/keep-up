@@ -5,16 +5,16 @@ import React, { Component } from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-import CreateTask from './CreateTask';
-import AddHome from './AddHome';
-import Home from './Home';
+import CreateTask from './task/CreateTask';
+import AddHome from './home/AddHome';
+import Home from './home/Home';
 import Login from './Login';
 import NotFound from './NotFound';
 import Onboard from './Onboard';
 import ServerError from './ServerError';
-import Tasks from './Tasks';
-import Task from './Task';
-import ViewerQuery from './ViewerQuery';
+import Tasks from './task/Tasks';
+import Task from './task/Task';
+import ViewerQuery from './user/ViewerQuery';
 
 const link = createHttpLink({
   uri: '/graphql',

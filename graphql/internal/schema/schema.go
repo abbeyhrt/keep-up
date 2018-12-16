@@ -11,6 +11,7 @@ var Schema = `
 		viewer: Viewer
 		home: Home
 		task(id: ID!): Task
+		user(id: ID!): User
 	}
 
 	type Mutation {
@@ -89,7 +90,7 @@ var Schema = `
 	type User {
 		id: ID!
 		email: String!
-		home_id: String
+		home: Home
 		first_name: String!
 		last_name: String!
 		avatarURL: String
